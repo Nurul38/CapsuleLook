@@ -169,6 +169,7 @@ export default function AuthScreen() {
                   <Controller
                     control={loginForm.control}
                     name="email"
+                    defaultValue=""
                     render={({ field: { onChange, value } }) => (
                       <View style={styles.inputContainer}>
                         <Ionicons name="mail" size={20} color="#9ca3af" style={styles.inputIcon} />
