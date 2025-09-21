@@ -153,33 +153,28 @@ export default function CameraScreen() {
 
   const requestPermissions = async () => {
     if (Platform.OS === 'web' || !Camera) {
-      // For web, we don't need to request these specific permissions
+      // For web, no permissions needed - users explicitly select files
       setCameraPermission(true);
       setMediaPermission(true);
       return;
     }
 
     try {
-      // Camera permission
-      const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
-      setCameraPermission(cameraStatus === 'granted');
-
-      // Media library permission
-      const { status: mediaStatus } = await MediaLibrary.requestPermissionsAsync();
-      setMediaPermission(mediaStatus === 'granted');
-
-      if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {
-        Alert.alert(
-          'Permissions Required',
-          'Camera and media library permissions are required to add clothing items.',
-          [{ text: 'OK' }]
-        );
+      // Request minimal camera permission (only for camera capture, not gallery access)
+      if (Camera) {
+        const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
+        setCameraPermission(cameraStatus === 'granted');
       }
+
+      // Note: We don't request MediaLibrary permissions anymore for privacy
+      // expo-image-picker works without MediaLibrary permissions for user-selected photos
+      setMediaPermission(true);
+
     } catch (error) {
       console.error('Permission request error:', error);
-      // Fallback to allowing permissions for web compatibility
-      setCameraPermission(true);
-      setMediaPermission(true);
+      // Fallback to allowing gallery access (user selection only)
+      setCameraPermission(false); // No camera if permissions fail
+      setMediaPermission(true);   // Gallery still works with user selection
     }
   };
 
