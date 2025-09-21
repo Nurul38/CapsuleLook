@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     borderColor: '#B76E79',
   },
   heroSection: {
-    background: 'linear-gradient(135deg, #FFFAF0 0%, #E6E6FA 100%)',
+    backgroundColor: '#FFFAF0', // Fixed: removed invalid linear-gradient
     paddingHorizontal: 32,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 40,
