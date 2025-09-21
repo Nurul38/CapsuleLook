@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 40,
     zIndex: 1,
-    backgroundColor: '#ec4899', // Fuchsia pink background
+    backgroundColor: '#7dd3fc', // Soft sky blue background for better readability
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
