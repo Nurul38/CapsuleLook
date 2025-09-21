@@ -817,6 +817,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  selectButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   viewModeButton: {
     width: 40,
     height: 40,
@@ -824,6 +830,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  moveButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
@@ -880,6 +892,28 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: 'white',
   },
+  // Selection Toolbar
+  selectionToolbar: {
+    flexDirection: 'row',
+    backgroundColor: '#f0f4ff',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    justifyContent: 'space-around',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e7ff',
+  },
+  toolbarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  toolbarButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6366f1',
+  },
   // Grid Mode Indicator
   gridModeIndicator: {
     flexDirection: 'row',
@@ -935,6 +969,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  // Selection Styles
+  selectionIndicator: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    zIndex: 1,
+  },
+  gridSelectionIndicator: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    zIndex: 1,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxSelected: {
+    backgroundColor: '#6366f1',
+    borderColor: '#6366f1',
+  },
   // List View Styles
   itemsList: {
     flex: 1,
@@ -957,6 +1018,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
+    position: 'relative',
+  },
+  itemCardSelected: {
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    backgroundColor: '#f0f4ff',
   },
   itemImageContainer: {
     marginRight: 16,
@@ -998,6 +1065,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  functionTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: '#f0f4ff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#c7d2fe',
   },
   colorDot: {
     width: 12,
@@ -1048,6 +1126,10 @@ const styles = StyleSheet.create({
     elevation: 3,
     position: 'relative',
   },
+  gridItemSelected: {
+    borderWidth: 2,
+    borderColor: '#6366f1',
+  },
   gridItemImage: {
     width: itemSize,
     height: itemSize,
@@ -1075,6 +1157,21 @@ const styles = StyleSheet.create({
   gridItemBrand: {
     fontSize: 10,
     color: '#6b7280',
+    marginBottom: 4,
+  },
+  gridFunctionTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    backgroundColor: '#f0f4ff',
+    borderRadius: 6,
+  },
+  gridFunctionText: {
+    fontSize: 8,
+    color: '#6366f1',
+    fontWeight: '500',
   },
   gridDeleteButton: {
     position: 'absolute',
@@ -1102,6 +1199,111 @@ const styles = StyleSheet.create({
   },
   gridFooterText: {
     fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  functionList: {
+    maxHeight: 400,
+    marginBottom: 24,
+  },
+  functionOption: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  functionOptionCurrent: {
+    borderColor: '#10b981',
+    backgroundColor: '#f0fdf4',
+  },
+  functionOptionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  functionOptionText: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  functionOptionLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  functionOptionLabelCurrent: {
+    color: '#10b981',
+  },
+  functionOptionDescription: {
+    fontSize: 12,
+    color: '#6b7280',
+    lineHeight: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  modalButtonSecondary: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  modalButtonTextSecondary: {
+    color: '#6b7280',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  // Loading Overlay
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    gap: 12,
+  },
+  loadingOverlayText: {
+    fontSize: 16,
     color: '#6b7280',
     fontWeight: '500',
   },
