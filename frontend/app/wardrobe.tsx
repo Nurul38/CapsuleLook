@@ -564,84 +564,156 @@ export default function WardrobeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1f2937" />
-        </TouchableOpacity>
-        <Text style={styles.title}>My Wardrobe</Text>
-        <View style={styles.headerActions}>
-          {/* View Mode Toggle */}
-          <TouchableOpacity 
-            onPress={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')} 
-            style={styles.viewModeButton}
-          >
-            <Ionicons 
-              name={viewMode === 'list' ? 'grid' : 'list'} 
-              size={20} 
-              color="#6b7280" 
-            />
-          </TouchableOpacity>
-          
-          {/* Add Button */}
-          <TouchableOpacity onPress={() => router.push('/camera' as any)} style={styles.addButton}>
-            <Ionicons name="add" size={24} color="#1f2937" />
-          </TouchableOpacity>
-        </View>
+        {isSelecting ? (
+          <>
+            <TouchableOpacity 
+              onPress={() => {
+                setIsSelecting(false);
+                setSelectedItems(new Set());
+              }} 
+              style={styles.backButton}
+            >
+              <Ionicons name="close" size={24} color="#1f2937" />
+            </TouchableOpacity>
+            <Text style={styles.title}>
+              {selectedItems.size} selected
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowMoveModal(true)}
+              style={styles.moveButton}
+              disabled={selectedItems.size === 0}
+            >
+              <Ionicons name="folder-open" size={24} color={selectedItems.size > 0 ? "#6366f1" : "#9ca3af"} />
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#1f2937" />
+            </TouchableOpacity>
+            <Text style={styles.title}>My Wardrobe</Text>
+            <View style={styles.headerActions}>
+              {/* Selection Mode Toggle */}
+              <TouchableOpacity 
+                onPress={() => setIsSelecting(!isSelecting)} 
+                style={styles.selectButton}
+              >
+                <Ionicons name="checkmark-circle-outline" size={20} color="#6b7280" />
+              </TouchableOpacity>
+              
+              {/* View Mode Toggle */}
+              <TouchableOpacity 
+                onPress={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')} 
+                style={styles.viewModeButton}
+              >
+                <Ionicons 
+                  name={viewMode === 'list' ? 'grid' : 'list'} 
+                  size={20} 
+                  color="#6b7280" 
+                />
+              </TouchableOpacity>
+              
+              {/* Add Button */}
+              <TouchableOpacity onPress={() => router.push('/camera' as any)} style={styles.addButton}>
+                <Ionicons name="add" size={24} color="#1f2937" />
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
 
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search your wardrobe..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholderTextColor="#9ca3af"
-          />
-          {searchQuery ? (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close" size={20} color="#6b7280" />
-            </TouchableOpacity>
-          ) : null}
+      {!isSelecting && (
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search your wardrobe..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#9ca3af"
+            />
+            {searchQuery ? (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close" size={20} color="#6b7280" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
-      </View>
+      )}
 
       {/* Filter Buttons */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        style={styles.filterContainer}
-        contentContainerStyle={styles.filterContent}
-      >
-        {filterTypes.map((filter) => (
+      {!isSelecting && (
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.filterContainer}
+          contentContainerStyle={styles.filterContent}
+        >
+          {filterTypes.map((filter) => (
+            <TouchableOpacity
+              key={filter.key}
+              style={[
+                styles.filterButton,
+                filterType === filter.key && styles.filterButtonActive,
+              ]}
+              onPress={() => setFilterType(filter.key)}
+            >
+              <Ionicons 
+                name={filter.icon as any} 
+                size={18} 
+                color={filterType === filter.key ? 'white' : '#6b7280'} 
+              />
+              <Text
+                style={[
+                  styles.filterText,
+                  filterType === filter.key && styles.filterTextActive,
+                ]}
+              >
+                {filter.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+
+      {/* Selection Actions Bar */}
+      {isSelecting && selectedItems.size > 0 && (
+        <View style={styles.selectionToolbar}>
           <TouchableOpacity
-            key={filter.key}
-            style={[
-              styles.filterButton,
-              filterType === filter.key && styles.filterButtonActive,
-            ]}
-            onPress={() => setFilterType(filter.key)}
+            style={styles.toolbarButton}
+            onPress={() => setShowMoveModal(true)}
+          >
+            <Ionicons name="folder-open" size={20} color="#6366f1" />
+            <Text style={styles.toolbarButtonText}>Move to Folder</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.toolbarButton}
+            onPress={() => {
+              const allSelected = filteredItems.length === selectedItems.size;
+              if (allSelected) {
+                setSelectedItems(new Set());
+              } else {
+                setSelectedItems(new Set(filteredItems.map(item => item.id)));
+              }
+            }}
           >
             <Ionicons 
-              name={filter.icon as any} 
-              size={18} 
-              color={filterType === filter.key ? 'white' : '#6b7280'} 
+              name={filteredItems.length === selectedItems.size ? "checkbox" : "square-outline"} 
+              size={20} 
+              color="#6366f1" 
             />
-            <Text
-              style={[
-                styles.filterText,
-                filterType === filter.key && styles.filterTextActive,
-              ]}
-            >
-              {filter.label}
+            <Text style={styles.toolbarButtonText}>
+              {filteredItems.length === selectedItems.size ? 'Deselect All' : 'Select All'}
             </Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        </View>
+      )}
 
       {/* View Mode Indicator for Grid */}
-      {viewMode === 'grid' && filterType !== 'all' && (
+      {viewMode === 'grid' && filterType !== 'all' && !isSelecting && (
         <View style={styles.gridModeIndicator}>
           <Ionicons name="grid" size={16} color="#6366f1" />
           <Text style={styles.gridModeText}>
@@ -694,6 +766,20 @@ export default function WardrobeScreen() {
             </ScrollView>
           )}
         </>
+      )}
+      
+      {/* Modals */}
+      {renderFunctionModal()}
+      {renderMoveModal()}
+      
+      {/* Loading Overlay */}
+      {isUpdating && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingCard}>
+            <ActivityIndicator size="large" color="#6366f1" />
+            <Text style={styles.loadingOverlayText}>Updating items...</Text>
+          </View>
+        </View>
       )}
     </SafeAreaView>
   );
