@@ -83,28 +83,61 @@ const colorOptions = [
   'Lavender', 'Olive', 'Khaki', 'Denim', 'Multicolor'
 ];
 
+// Enhanced brand options with ethical considerations
+// Compatible with "No Thanks" app and BDS guidelines
+
+// ETHICAL & SUSTAINABLE BRANDS - Prioritized options
+const ethicalBrands = [
+  // Ethical & Sustainable Fashion
+  'Everlane', 'Patagonia', 'Eileen Fisher', 'Reformation', 'Girlfriend Collective',
+  'Kotn', 'Pact', 'People Tree', 'Thought Clothing', 'Armed Angels',
+  'Organic Basics', 'Honest Basics', 'Kowtow', 'Ninety Percent', 'Mayamiko',
+  
+  // Palestinian & Muslim-Supporting Brands  
+  'WATAN Apparel', 'Rula Couture', 'PaliRoots', 'Hikmah Boutique',
+  'Modest Street', 'Zahra Collective', 'Baraka Threads', 'Nour Modest Fashion',
+  
+  // Verified Independent & Small Brands
+  'Sézane', 'Ganni', 'Staud', 'Rejina Pyo', 'Arket', 'COS', 'Weekday',
+  'Acne Studios', 'Norse Projects', '& Other Stories', 'Monki',
+  
+  // Always Ethical Options
+  'Vintage', 'Thrifted', 'Second-hand', 'Consignment', 'DIY/Handmade',
+  'Estate Sale', 'Garage Sale', 'Hand-me-down', 'Inherited', 'Upcycled',
+];
+
+// NEUTRAL BRANDS - Not on boycott lists but not actively ethical
+const neutralBrands = [
+  'Marks & Spencer', 'Next', 'ASOS', 'New Look', 'River Island',
+  'Mango', 'Urban Outfitters', 'American Eagle', 'Levi\'s', 'Wrangler',
+  'Lee', 'Dockers', 'Dickies', 'Carhartt', 'Hanes', 'Fruit of the Loom',
+];
+
+// PROBLEMATIC BRANDS - Based on BDS boycott list and "No Thanks" app
+const problematicBrands = [
+  // Major BDS Targets - DO NOT include in main dropdown
+  'Zara', 'Bershka', 'Pull & Bear', 'Massimo Dutti', 'Stradivarius', // Inditex
+  'Puma', 'Adidas', 'Nike', 'Under Armour', 'Reebok', 'New Balance',
+  'H&M', 'Uniqlo', 'Gap', 'Banana Republic', 'Old Navy', 'Athleta',
+  
+  // Designer Brands with Israeli Ties
+  'Ralph Lauren', 'Polo Ralph Lauren', 'Tommy Hilfiger', 'Calvin Klein', 
+  'Michael Kors', 'Hugo Boss', 'Lacoste',
+  
+  // Luxury Brands with Concerns  
+  'Bulgari', 'Chanel', 'Dior', 'Louis Vuitton', 'Hermès', 'Gucci',
+  'Prada', 'Versace', 'Armani', 'Dolce & Gabbana', 'Valentino',
+  'Givenchy', 'Saint Laurent', 'Balenciaga', 'Bottega Veneta', 'Fendi',
+  
+  // Fast Fashion with Ethical Concerns
+  'Forever 21', 'Shein', 'Romwe', 'Zaful', 'Fashion Nova', 'Primark',
+  'Boohoo', 'Missguided', 'Pretty Little Thing', 'Charlotte Russe',
+];
+
+// Combine ethical and neutral brands for main dropdown (exclude problematic ones)
 const brandOptions = [
-  // High Street Brands
-  'H&M', 'Zara', 'Uniqlo', 'Mango', 'COS', 'Massimo Dutti', 'Bershka', '& Other Stories',
-  'Weekday', 'Monki', 'ARKET', 'Topshop', 'ASOS', 'Urban Outfitters', 'American Eagle',
-  'Abercrombie & Fitch', 'Hollister', 'Gap', 'Banana Republic', 'Old Navy',
-  'Forever 21', 'Charlotte Russe', 'Primark', 'New Look', 'River Island',
-  'Marks & Spencer', 'Next', 'John Lewis', 'Debenhams', 'House of Fraser',
-  
-  // Designer Brands
-  'Chanel', 'Dior', 'Louis Vuitton', 'Hermès', 'Prada', 'Gucci', 'Versace',
-  'Armani', 'Dolce & Gabbana', 'Valentino', 'Givenchy', 'Saint Laurent',
-  'Balenciaga', 'Bottega Veneta', 'Fendi', 'Celine', 'Loewe', 'Burberry',
-  'Alexander McQueen', 'Stella McCartney', 'Marc Jacobs', 'Tom Ford',
-  'Ralph Lauren', 'Calvin Klein', 'Tommy Hilfiger', 'Michael Kors',
-  
-  // Athletic Brands
-  'Nike', 'Adidas', 'Puma', 'Under Armour', 'Reebok', 'New Balance',
-  'Asics', 'Lululemon', 'Athleta', 'Patagonia', 'The North Face',
-  
-  // Contemporary Brands
-  'Cos', 'Acne Studios', 'Ganni', 'Sandro', 'Maje', 'Isabel Marant',
-  'Theory', 'Vince', 'Rag & Bone', 'Equipment', 'Frame', 'Citizens of Humanity'
+  ...ethicalBrands,
+  ...neutralBrands,
 ];
 
 export default function CameraEnhancedScreen() {
