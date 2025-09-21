@@ -640,19 +640,21 @@ export default function CameraScreen() {
             )}
             
             <View style={styles.imageButtons}>
-              <TouchableOpacity
-                style={styles.imageButton}
-                onPress={() => setShowCamera(true)}
-                disabled={!cameraPermission}
-              >
-                <Ionicons name="camera" size={24} color="#6366f1" />
-                <Text style={styles.imageButtonText}>Camera</Text>
-              </TouchableOpacity>
+              {Platform.OS !== 'web' && (
+                <TouchableOpacity
+                  style={styles.imageButton}
+                  onPress={() => setShowCamera(true)}
+                  disabled={!cameraPermission}
+                >
+                  <Ionicons name="camera" size={24} color="#6366f1" />
+                  <Text style={styles.imageButtonText}>Camera</Text>
+                </TouchableOpacity>
+              )}
               
               <TouchableOpacity
-                style={styles.imageButton}
+                style={[styles.imageButton, Platform.OS === 'web' && { flex: 1 }]}
                 onPress={pickImage}
-                disabled={!mediaPermission}
+                disabled={Platform.OS !== 'web' && !mediaPermission}
               >
                 <Ionicons name="images" size={24} color="#6366f1" />
                 <Text style={styles.imageButtonText}>Gallery</Text>
