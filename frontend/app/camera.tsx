@@ -18,7 +18,16 @@ import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-import { Camera, CameraView } from 'expo-camera';
+let Camera, CameraView;
+try {
+  const cameraModule = require('expo-camera');
+  Camera = cameraModule.Camera;
+  CameraView = cameraModule.CameraView;
+} catch (error) {
+  // Camera not available on web
+  Camera = null;
+  CameraView = null;
+}
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
