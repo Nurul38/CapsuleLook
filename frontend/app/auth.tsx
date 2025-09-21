@@ -122,6 +122,7 @@ export default function AuthScreen() {
             <View style={[styles.circle, styles.circle1]} />
             <View style={[styles.circle, styles.circle2]} />
             <View style={[styles.circle, styles.circle3]} />
+            <View style={[styles.dressIcon, styles.dressPosition]} />
           </View>
 
           {/* Header */}
