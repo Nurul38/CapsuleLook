@@ -205,18 +205,23 @@ export default function CameraScreen() {
   };
 
   const pickImage = async () => {
+    console.log('pickImage called, Platform.OS:', Platform.OS);
+    
     if (Platform.OS === 'web') {
+      console.log('Using web file picker...');
       // Web-compatible image picker
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.onchange = (event: any) => {
+        console.log('File selected:', event.target.files[0]);
         const file = event.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = (e) => {
             const base64 = e.target?.result as string;
             const base64Data = base64.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+            console.log('Image converted to base64, length:', base64Data?.length);
             setImageUri(base64);
             setImageBase64(base64Data);
             
@@ -230,6 +235,7 @@ export default function CameraScreen() {
       return;
     }
 
+    console.log('Using native image picker, mediaPermission:', mediaPermission);
     if (!mediaPermission) {
       Alert.alert('Permission Required', 'Media library permission is required.');
       return;
