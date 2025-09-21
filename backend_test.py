@@ -14,7 +14,7 @@ import os
 import sys
 
 # Test Configuration
-BASE_URL = "https://wardrobe-recall.preview.emergentagent.com/api"
+BASE_URL = "https://smart-wardrobe-22.preview.emergentagent.com/api"
 TIMEOUT = 30  # seconds
 
 # Sample base64 image data (small PNG image for testing)
