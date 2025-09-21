@@ -10,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -33,17 +34,28 @@ interface ClothingItem {
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
+const { width: screenWidth } = Dimensions.get('window');
+const itemsPerRow = 4;
+const itemSize = (screenWidth - 60) / itemsPerRow; // 60 = padding (20) + gaps (10 * 4)
+
 export default function WardrobeScreen() {
   const [clothingItems, setClothingItems] = useState<ClothingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const filterTypes = [
     { key: 'all', label: 'All', icon: 'grid' },
     { key: 'casual', label: 'Casual', icon: 'shirt' },
     { key: 'formal', label: 'Formal', icon: 'business' },
     { key: 'athletic', label: 'Athletic', icon: 'fitness' },
+    { key: 'work', label: 'Work', icon: 'briefcase' },
+    { key: 'sleep', label: 'Sleep', icon: 'moon' },
+    { key: 'outdoor', label: 'Outdoor', icon: 'leaf' },
+    { key: 'party', label: 'Party', icon: 'musical-notes' },
+    { key: 'vacation', label: 'Vacation', icon: 'airplane' },
+    // Categories
     { key: 'winter', label: 'Winter', icon: 'snow' },
     { key: 'summer', label: 'Summer', icon: 'sunny' },
     { key: 'costume', label: 'Costume', icon: 'star' },
@@ -51,14 +63,16 @@ export default function WardrobeScreen() {
     { key: 'events', label: 'Events', icon: 'calendar' },
   ];
 
-  const categoryTypes = [
-    'Winter', 'Summer', 'Spring', 'Autumn', 'Costume', 'Wedding', 'Events', 
-    'Party', 'Beach', 'Gym', 'Travel', 'Maternity', 'Undergarments', 'Accessories'
-  ];
-
   useEffect(() => {
     fetchClothingItems();
   }, []);
+
+  // Auto-switch to grid view when filtering by function/category (except 'all')
+  useEffect(() => {
+    if (filterType !== 'all' && filteredItems.length > 0) {
+      setViewMode('grid');
+    }
+  }, [filterType]);
 
   const fetchClothingItems = async () => {
     try {
@@ -123,7 +137,7 @@ export default function WardrobeScreen() {
     return matchesSearch && matchesFilter;
   });
 
-  const renderClothingItem = (item: ClothingItem) => (
+  const renderClothingItemList = (item: ClothingItem) => (
     <TouchableOpacity 
       key={item.id} 
       style={styles.itemCard}
@@ -186,6 +200,74 @@ export default function WardrobeScreen() {
     </TouchableOpacity>
   );
 
+  const renderClothingItemGrid = (item: ClothingItem) => (
+    <TouchableOpacity 
+      key={item.id} 
+      style={styles.gridItem}
+      onPress={() => router.push(`/item-details/${item.id}` as any)}
+    >
+      {item.image_base64 ? (
+        <Image
+          source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+          style={styles.gridItemImage}
+          contentFit="cover"
+        />
+      ) : (
+        <View style={styles.gridPlaceholderImage}>
+          <Ionicons name="shirt" size={24} color="#9ca3af" />
+        </View>
+      )}
+      
+      <View style={styles.gridItemInfo}>
+        <Text style={styles.gridItemName} numberOfLines={1}>{item.name}</Text>
+        {item.brand && (
+          <Text style={styles.gridItemBrand} numberOfLines={1}>{item.brand}</Text>
+        )}
+      </View>
+      
+      <TouchableOpacity
+        style={styles.gridDeleteButton}
+        onPress={() => deleteItem(item.id)}
+      >
+        <Ionicons name="close" size={14} color="#ef4444" />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+
+  const renderGrid = () => {
+    const rows: ClothingItem[][] = [];
+    for (let i = 0; i < filteredItems.length; i += itemsPerRow) {
+      rows.push(filteredItems.slice(i, i + itemsPerRow));
+    }
+
+    return (
+      <ScrollView 
+        style={styles.gridContainer}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.gridContent}
+      >
+        {rows.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.gridRow}>
+            {row.map(renderClothingItemGrid)}
+            {/* Fill remaining cells in last row with empty spaces */}
+            {row.length < itemsPerRow && 
+              Array.from({ length: itemsPerRow - row.length }).map((_, emptyIndex) => (
+                <View key={`empty-${emptyIndex}`} style={styles.gridItem} />
+              ))
+            }
+          </View>
+        ))}
+        
+        {/* Show total count for grid view */}
+        <View style={styles.gridFooter}>
+          <Text style={styles.gridFooterText}>
+            {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found
+          </Text>
+        </View>
+      </ScrollView>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -194,9 +276,24 @@ export default function WardrobeScreen() {
           <Ionicons name="arrow-back" size={24} color="#1f2937" />
         </TouchableOpacity>
         <Text style={styles.title}>My Wardrobe</Text>
-        <TouchableOpacity onPress={() => router.push('/camera' as any)} style={styles.addButton}>
-          <Ionicons name="add" size={24} color="#1f2937" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {/* View Mode Toggle */}
+          <TouchableOpacity 
+            onPress={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')} 
+            style={styles.viewModeButton}
+          >
+            <Ionicons 
+              name={viewMode === 'list' ? 'grid' : 'list'} 
+              size={20} 
+              color="#6b7280" 
+            />
+          </TouchableOpacity>
+          
+          {/* Add Button */}
+          <TouchableOpacity onPress={() => router.push('/camera' as any)} style={styles.addButton}>
+            <Ionicons name="add" size={24} color="#1f2937" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Search Bar */}
@@ -251,6 +348,16 @@ export default function WardrobeScreen() {
         ))}
       </ScrollView>
 
+      {/* View Mode Indicator for Grid */}
+      {viewMode === 'grid' && filterType !== 'all' && (
+        <View style={styles.gridModeIndicator}>
+          <Ionicons name="grid" size={16} color="#6366f1" />
+          <Text style={styles.gridModeText}>
+            4×5 Preview for {filterTypes.find(f => f.key === filterType)?.label}
+          </Text>
+        </View>
+      )}
+
       {/* Content */}
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -282,13 +389,19 @@ export default function WardrobeScreen() {
           )}
         </View>
       ) : (
-        <ScrollView 
-          style={styles.itemsList}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.itemsContent}
-        >
-          {filteredItems.map(renderClothingItem)}
-        </ScrollView>
+        <>
+          {viewMode === 'grid' ? (
+            renderGrid()
+          ) : (
+            <ScrollView 
+              style={styles.itemsList}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.itemsContent}
+            >
+              {filteredItems.map(renderClothingItemList)}
+            </ScrollView>
+          )}
+        </>
       )}
     </SafeAreaView>
   );
