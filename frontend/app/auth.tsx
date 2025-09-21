@@ -646,8 +646,18 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   skipText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#B76E79', // Rose Gold
+    fontWeight: '600',
+  },
+  authButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  authButtonText: {
+    fontSize: 14,
+    color: '#4B0082', // Deep Plum
     fontWeight: '500',
   },
 });
