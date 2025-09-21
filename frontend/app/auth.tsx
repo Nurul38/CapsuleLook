@@ -129,10 +129,16 @@ export default function AuthScreen() {
           <View style={styles.heroSection}>
             <View style={styles.logoContainer}>
               <View style={styles.logo}>
-                <Ionicons name="shirt" size={28} color="#4B0082" />
+                <View style={styles.hangerIcon}>
+                  <Ionicons name="remove" size={24} color="#B76E79" style={styles.hangerBar} />
+                  <View style={styles.hangerHook} />
+                  <View style={styles.beeWing}>
+                    <Text style={styles.beeEmoji}>🐝</Text>
+                  </View>
+                </View>
               </View>
-              <Text style={styles.heroTitle}>Unlock Your Wardrobe's Full Potential</Text>
-              <Text style={styles.heroSubtitle}>Visibee: Effortless Clothing Inventory & Style Inspiration</Text>
+              <Text style={styles.heroTitle}>Visibee</Text>
+              <Text style={styles.heroSubtitle}>Unlock Your Wardrobe's Full Potential</Text>
               <Text style={styles.tagline}>Your Style, Perfectly Organized.</Text>
             </View>
           </View>
