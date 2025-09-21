@@ -144,6 +144,13 @@ export default function WardrobeScreen() {
               <Text style={styles.metaText}>{item.function}</Text>
             </View>
           )}
+          
+          {item.category && (
+            <View style={styles.metaTag}>
+              <Ionicons name="pricetag" size={12} color="#6b7280" />
+              <Text style={styles.metaText}>{item.category}</Text>
+            </View>
+          )}
         </View>
         
         {item.ai_description && (
