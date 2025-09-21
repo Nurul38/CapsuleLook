@@ -376,7 +376,15 @@ export default function AuthScreen() {
               style={styles.skipButton}
               onPress={() => router.replace('/')}
             >
-              <Text style={styles.skipText}>Skip for now</Text>
+              <Text style={styles.skipText}>Continue to App (Demo Mode)</Text>
+            </TouchableOpacity>
+            
+            {/* Auth Button for Full Access */}
+            <TouchableOpacity
+              style={styles.authButton}
+              onPress={() => router.push('/auth-full' as any)}
+            >
+              <Text style={styles.authButtonText}>Sign In / Sign Up</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
