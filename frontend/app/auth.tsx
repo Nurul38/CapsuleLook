@@ -424,21 +424,21 @@ const styles = StyleSheet.create({
   circle1: {
     width: 280,
     height: 280,
-    backgroundColor: '#a855f7', // Cool purple
+    backgroundColor: '#ec4899', // Keep fuchsia as accent
     top: -140,
     right: -80,
   },
   circle2: {
     width: 180,
     height: 180,
-    backgroundColor: '#06b6d4', // Cool teal
+    backgroundColor: '#a78bfa', // Soft purple
     top: 60,
     left: -60,
   },
   circle3: {
     width: 120,
     height: 120,
-    backgroundColor: '#8b5cf6', // Cool lavender
+    backgroundColor: '#38bdf8', // Soft blue harmony
     top: 180,
     right: 40,
   },
