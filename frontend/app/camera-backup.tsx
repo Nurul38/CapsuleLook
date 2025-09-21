@@ -17,18 +17,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-
-// Camera imports
+// Note: Removed MediaLibrary import for privacy - we only access user-selected photos
 let Camera, CameraView;
 try {
   const cameraModule = require('expo-camera');
   Camera = cameraModule.Camera;
   CameraView = cameraModule.CameraView;
 } catch (error) {
+  // Camera not available on web
   Camera = null;
   CameraView = null;
 }
-
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -47,33 +46,19 @@ type ClothingFormData = z.infer<typeof clothingSchema>;
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
-// Enhanced options with more variety
+// Predefined options
 const functionOptions = [
-  { value: 'casual', label: 'Casual', icon: 'shirt', description: 'Everyday comfortable wear' },
-  { value: 'formal', label: 'Formal', icon: 'business', description: 'Professional & dressy' },
-  { value: 'athletic', label: 'Athletic', icon: 'fitness', description: 'Sports & workout gear' },
-  { value: 'work', label: 'Work', icon: 'briefcase', description: 'Office & professional' },
-  { value: 'sleep', label: 'Sleepwear', icon: 'moon', description: 'Pajamas & nightwear' },
-  { value: 'outdoor', label: 'Outdoor', icon: 'leaf', description: 'Adventure & nature' },
-  { value: 'party', label: 'Party', icon: 'musical-notes', description: 'Celebrations & events' },
-  { value: 'vacation', label: 'Vacation', icon: 'airplane', description: 'Travel & leisure' },
+  { value: 'casual', label: 'Casual', icon: 'shirt' },
+  { value: 'formal', label: 'Formal', icon: 'business' },
+  { value: 'athletic', label: 'Athletic', icon: 'fitness' },
+  { value: 'work', label: 'Work', icon: 'briefcase' },
+  { value: 'sleep', label: 'Sleepwear', icon: 'moon' },
+  { value: 'outdoor', label: 'Outdoor', icon: 'leaf' },
 ];
 
 const categoryOptions = [
-  { value: 'winter', label: 'Winter', icon: 'snow', description: 'Cold weather clothing' },
-  { value: 'summer', label: 'Summer', icon: 'sunny', description: 'Hot weather essentials' },
-  { value: 'spring', label: 'Spring', icon: 'flower', description: 'Mild weather transition' },
-  { value: 'autumn', label: 'Autumn', icon: 'leaf', description: 'Fall season wear' },
-  { value: 'costume', label: 'Costume', icon: 'star', description: 'Special event costumes' },
-  { value: 'wedding', label: 'Wedding', icon: 'heart', description: 'Wedding attire' },
-  { value: 'events', label: 'Events', icon: 'calendar', description: 'Special occasions' },
-  { value: 'party', label: 'Party', icon: 'wine', description: 'Party outfits' },
-  { value: 'beach', label: 'Beach', icon: 'water', description: 'Beach & swimwear' },
-  { value: 'gym', label: 'Gym', icon: 'barbell', description: 'Gym & fitness' },
-  { value: 'travel', label: 'Travel', icon: 'bag', description: 'Travel essentials' },
-  { value: 'maternity', label: 'Maternity', icon: 'heart-circle', description: 'Maternity wear' },
-  { value: 'undergarments', label: 'Undergarments', icon: 'eye-off', description: 'Intimate wear' },
-  { value: 'accessories', label: 'Accessories', icon: 'diamond', description: 'Jewelry & accessories' },
+  'Winter', 'Summer', 'Spring', 'Autumn', 'Costume', 'Wedding', 'Events', 
+  'Party', 'Beach', 'Gym', 'Travel', 'Maternity', 'Undergarments', 'Accessories'
 ];
 
 const colorOptions = [
@@ -107,7 +92,7 @@ const brandOptions = [
   'Theory', 'Vince', 'Rag & Bone', 'Equipment', 'Frame', 'Citizens of Humanity'
 ];
 
-export default function CameraEnhancedScreen() {
+export default function CameraScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
@@ -119,14 +104,13 @@ export default function CameraEnhancedScreen() {
   const [showAIOptions, setShowAIOptions] = useState(false);
   const [itemCount, setItemCount] = useState(0);
   
-  // Tab navigation state
-  const [currentTab, setCurrentTab] = useState<'details' | 'function' | 'category' | 'extras'>('details');
-  
   // Dropdown states
   const [showColorDropdown, setShowColorDropdown] = useState(false);
   const [showBrandDropdown, setShowBrandDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [colorSearch, setColorSearch] = useState('');
   const [brandSearch, setBrandSearch] = useState('');
+  const [categorySearch, setCategorySearch] = useState('');
   
   const cameraRef = useRef<any>(null);
 
@@ -143,7 +127,7 @@ export default function CameraEnhancedScreen() {
       name: '',
       brand: '',
       color: '',
-      function: '',
+      function: 'casual',
       category: '',
       purchase_link: '',
       tags: '',
@@ -169,21 +153,28 @@ export default function CameraEnhancedScreen() {
 
   const requestPermissions = async () => {
     if (Platform.OS === 'web' || !Camera) {
+      // For web, no permissions needed - users explicitly select files
       setCameraPermission(true);
       setMediaPermission(true);
       return;
     }
 
     try {
+      // Request minimal camera permission (only for camera capture, not gallery access)
       if (Camera) {
         const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
         setCameraPermission(cameraStatus === 'granted');
       }
+
+      // Note: We don't request MediaLibrary permissions anymore for privacy
+      // expo-image-picker works without MediaLibrary permissions for user-selected photos
       setMediaPermission(true);
+
     } catch (error) {
       console.error('Permission request error:', error);
-      setCameraPermission(false);
-      setMediaPermission(true);
+      // Fallback to allowing gallery access (user selection only)
+      setCameraPermission(false); // No camera if permissions fail
+      setMediaPermission(true);   // Gallery still works with user selection
     }
   };
 
@@ -199,6 +190,8 @@ export default function CameraEnhancedScreen() {
       setImageUri(photo.uri);
       setImageBase64(photo.base64);
       setShowCamera(false);
+      
+      // Show AI analysis options
       setShowAIOptions(true);
     } catch (error) {
       console.error('Error taking picture:', error);
@@ -207,15 +200,21 @@ export default function CameraEnhancedScreen() {
   };
 
   const pickImage = async () => {
+    console.log('pickImage called, Platform.OS:', Platform.OS);
+    
     if (Platform.OS === 'web') {
+      console.log('Using privacy-focused web file picker...');
+      // Web-compatible image picker - maximum privacy (user explicitly selects files)
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = 'image/*';
-      input.multiple = false;
+      input.accept = 'image/*'; // Only image files
+      input.multiple = false;   // Only single file selection
       
       input.onchange = (event: any) => {
+        console.log('File selected:', event.target.files[0]);
         const file = event.target.files[0];
         if (file) {
+          // Validate file type for security
           if (!file.type.startsWith('image/')) {
             Alert.alert('Invalid File', 'Please select an image file only.');
             return;
@@ -224,34 +223,44 @@ export default function CameraEnhancedScreen() {
           const reader = new FileReader();
           reader.onload = (e) => {
             const base64 = e.target?.result as string;
-            const base64Data = base64.split(',')[1];
+            const base64Data = base64.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+            console.log('Image converted to base64, length:', base64Data?.length);
             setImageUri(base64);
             setImageBase64(base64Data);
+            
+            // Show AI analysis options
             setShowAIOptions(true);
           };
           reader.readAsDataURL(file);
         }
+        
+        // Clear the input to ensure privacy (no file path stored)
         input.value = '';
       };
       
       input.click();
       return;
     }
+
+    console.log('Using privacy-focused native image picker');
     
     try {
+      // Most privacy-focused configuration for mobile
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-        base64: true,
-        allowsMultipleSelection: false,
-        selectionLimit: 1,
+        allowsEditing: true,        // User can crop/edit before selection
+        aspect: [1, 1],            // Square aspect ratio
+        quality: 0.8,              // Reduce file size
+        base64: true,              // Get base64 for processing
+        allowsMultipleSelection: false, // Only single photo selection
+        selectionLimit: 1,         // Limit to 1 photo for privacy
+        // Note: No access to photo library metadata or location data
       });
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
         
+        // Additional privacy check - ensure it's an image
         if (!asset.type || asset.type !== 'image') {
           Alert.alert('Invalid Selection', 'Please select an image file only.');
           return;
@@ -259,6 +268,10 @@ export default function CameraEnhancedScreen() {
         
         setImageUri(asset.uri);
         setImageBase64(asset.base64 || '');
+        
+        console.log('Image selected - privacy protected, no metadata access');
+        
+        // Show AI analysis options
         setShowAIOptions(true);
       }
     } catch (error) {
@@ -303,7 +316,7 @@ export default function CameraEnhancedScreen() {
   const autoFillFromAnalysis = (analysis: string) => {
     const lowerAnalysis = analysis.toLowerCase();
     
-    // Color detection
+    // Enhanced color detection with more comprehensive color matching
     const colorMappings = {
       'red': ['red', 'crimson', 'cherry', 'burgundy', 'maroon', 'scarlet'],
       'blue': ['blue', 'navy', 'royal', 'cobalt', 'sapphire', 'azure'],
@@ -330,8 +343,40 @@ export default function CameraEnhancedScreen() {
       setValue('color', detectedColor);
     }
 
-    // Generate smart auto-name
-    generateSmartAutoName(undefined, detectedColor);
+    // Enhanced garment type detection
+    const garmentMappings = {
+      'shirt': ['shirt', 'blouse', 'top', 'tee', 't-shirt', 'tank top', 'camisole'],
+      'dress': ['dress', 'gown', 'frock', 'sundress', 'maxi dress', 'mini dress'],
+      'pants': ['pants', 'trousers', 'slacks', 'chinos', 'leggings'],
+      'jeans': ['jeans', 'denim'],
+      'skirt': ['skirt', 'mini skirt', 'maxi skirt', 'pleated skirt'],
+      'jacket': ['jacket', 'blazer', 'coat', 'cardigan', 'hoodie', 'sweater'],
+      'shorts': ['shorts', 'bermuda', 'hot pants'],
+      'shoes': ['shoes', 'boots', 'sandals', 'sneakers', 'heels', 'flats'],
+      'bag': ['bag', 'purse', 'backpack', 'tote', 'clutch', 'handbag'],
+    };
+    
+    let detectedType = '';
+    for (const [type, variations] of Object.entries(garmentMappings)) {
+      if (variations.some(variation => lowerAnalysis.includes(variation))) {
+        detectedType = type;
+        break;
+      }
+    }
+    
+    // Generate smart auto-name based on category, color, and type
+    if (detectedType || detectedColor) {
+      generateSmartAutoName(detectedType, detectedColor);
+    }
+  };
+
+  const generateAutoName = (baseType?: string) => {
+    const currentColor = watch('color');
+    const currentBrand = watch('brand');
+    const currentCategory = watch('category');
+    const nextIndex = itemCount + 1;
+    
+    generateSmartAutoName(baseType, currentColor, currentBrand, currentCategory, nextIndex);
   };
 
   const generateSmartAutoName = (
@@ -344,16 +389,16 @@ export default function CameraEnhancedScreen() {
     const currentColor = color || watch('color');
     const currentBrand = brand || watch('brand');
     const currentCategory = category || watch('category');
-    const currentFunction = watch('function');
     const currentIndex = index || itemCount + 1;
     
     let autoName = '';
     
-    // Priority naming with function and category
+    // Priority 1: Category-based naming with running numbers
     if (currentCategory) {
-      const categoryLabel = categoryOptions.find(opt => opt.value === currentCategory)?.label || currentCategory;
-      autoName = `${categoryLabel}-${String(currentIndex).padStart(3, '0')}`;
+      const categoryCount = itemCount + 1; // This should be category-specific count in real app
+      autoName = `${currentCategory}-${String(categoryCount).padStart(3, '0')}`;
       
+      // Add descriptors if available
       if (currentColor && type) {
         autoName += ` (${currentColor} ${type.charAt(0).toUpperCase() + type.slice(1)})`;
       } else if (currentColor) {
@@ -361,16 +406,25 @@ export default function CameraEnhancedScreen() {
       } else if (type) {
         autoName += ` (${type.charAt(0).toUpperCase() + type.slice(1)})`;
       }
-    } else if (currentFunction) {
-      const functionLabel = functionOptions.find(opt => opt.value === currentFunction)?.label || currentFunction;
-      autoName = `${functionLabel}-${String(currentIndex).padStart(3, '0')}`;
-      
+    } 
+    // Priority 2: Type-based naming
+    else if (type) {
+      const typeFormatted = type.charAt(0).toUpperCase() + type.slice(1);
       if (currentColor) {
-        autoName += ` (${currentColor})`;
+        autoName = `${currentColor} ${typeFormatted}`;
+      } else {
+        autoName = typeFormatted;
       }
-    } else if (currentColor) {
+      
+      // Add running number for same type
+      autoName += `-${String(currentIndex).padStart(3, '0')}`;
+    }
+    // Priority 3: Color-based naming
+    else if (currentColor) {
       autoName = `${currentColor} Item-${String(currentIndex).padStart(3, '0')}`;
-    } else {
+    }
+    // Priority 4: Generic indexed naming
+    else {
       autoName = `Item-${String(currentIndex).padStart(3, '0')}`;
     }
     
@@ -388,6 +442,10 @@ export default function CameraEnhancedScreen() {
 
   const filteredBrands = brandOptions.filter(brand =>
     brand.toLowerCase().includes(brandSearch.toLowerCase())
+  );
+
+  const filteredCategories = categoryOptions.filter(category =>
+    category.toLowerCase().includes(categorySearch.toLowerCase())
   );
 
   const renderDropdown = (
@@ -445,7 +503,7 @@ export default function CameraEnhancedScreen() {
       
       const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()) : [];
       
-      // Auto-generate name if not provided
+      // Auto-generate indexed name if not provided
       let finalName = data.name;
       if (!finalName) {
         const nextIndex = itemCount + 1;
@@ -484,8 +542,7 @@ export default function CameraEnhancedScreen() {
               setImageBase64(null);
               setAiAnalysis('');
               reset();
-              setCurrentTab('details');
-              getItemCount();
+              getItemCount(); // Update count for next auto-indexing
             },
           },
           {
@@ -536,271 +593,6 @@ export default function CameraEnhancedScreen() {
     </Modal>
   );
 
-  // Tab Content Renderers
-  const renderDetailsTab = () => (
-    <View style={styles.tabContent}>
-      <Text style={styles.tabTitle}>Basic Information</Text>
-      
-      {/* Name with Auto-Generate Option */}
-      <View style={styles.formGroup}>
-        <View style={styles.labelRow}>
-          <Text style={styles.label}>Name *</Text>
-          <TouchableOpacity
-            onPress={() => generateSmartAutoName()}
-            style={styles.autoButton}
-          >
-            <Ionicons name="refresh" size={14} color="#6366f1" />
-            <Text style={styles.autoButtonText}>Auto Generate</Text>
-          </TouchableOpacity>
-        </View>
-        <Controller
-          control={control}
-          name="name"
-          defaultValue=""
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.name && styles.inputError]}
-              placeholder="e.g., Blue T-shirt or leave blank for auto-indexing"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholderTextColor="#9ca3af"
-            />
-          )}
-        />
-        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
-      </View>
-
-      {/* Brand with Dropdown */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Brand</Text>
-        <Controller
-          control={control}
-          name="brand"
-          defaultValue=""
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View>
-              <TouchableOpacity
-                style={styles.dropdownButton}
-                onPress={() => setShowBrandDropdown(!showBrandDropdown)}
-              >
-                <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
-                  {value || 'Select or enter brand (optional)'}
-                </Text>
-                <Ionicons name="chevron-down" size={20} color="#6b7280" />
-              </TouchableOpacity>
-              
-              {showBrandDropdown && renderDropdown(
-                filteredBrands,
-                brandSearch,
-                setBrandSearch,
-                (selectedBrand) => {
-                  onChange(selectedBrand);
-                  setShowBrandDropdown(false);
-                  setBrandSearch('');
-                },
-                'Brand'
-              )}
-            </View>
-          )}
-        />
-      </View>
-
-      {/* Color with Dropdown */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Color</Text>
-        <Controller
-          control={control}
-          name="color"
-          defaultValue=""
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View>
-              <TouchableOpacity
-                style={styles.dropdownButton}
-                onPress={() => setShowColorDropdown(!showColorDropdown)}
-              >
-                <View style={styles.colorPreview}>
-                  {value && (
-                    <View style={[styles.colorDot, { backgroundColor: value.toLowerCase() }]} />
-                  )}
-                  <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
-                    {value || 'Select or enter color (optional)'}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-down" size={20} color="#6b7280" />
-              </TouchableOpacity>
-              
-              {showColorDropdown && renderDropdown(
-                filteredColors,
-                colorSearch,
-                setColorSearch,
-                (selectedColor) => {
-                  onChange(selectedColor);
-                  setShowColorDropdown(false);
-                  setColorSearch('');
-                },
-                'Color'
-              )}
-            </View>
-          )}
-        />
-      </View>
-    </View>
-  );
-
-  const renderFunctionTab = () => (
-    <View style={styles.tabContent}>
-      <Text style={styles.tabTitle}>Function & Purpose</Text>
-      <Text style={styles.tabDescription}>What is this clothing item primarily used for? (Optional)</Text>
-      
-      <Controller
-        control={control}
-        name="function"
-        defaultValue=""
-        render={({ field: { onChange, value } }) => (
-          <View style={styles.optionsGrid}>
-            {functionOptions.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.optionCard,
-                  value === option.value && styles.optionCardActive,
-                ]}
-                onPress={() => onChange(value === option.value ? '' : option.value)}
-              >
-                <Ionicons
-                  name={option.icon as any}
-                  size={32}
-                  color={value === option.value ? 'white' : '#6366f1'}
-                />
-                <Text style={[
-                  styles.optionLabel,
-                  value === option.value && styles.optionLabelActive,
-                ]}>
-                  {option.label}
-                </Text>
-                <Text style={[
-                  styles.optionDescription,
-                  value === option.value && styles.optionDescriptionActive,
-                ]}>
-                  {option.description}
-                </Text>
-                {value === option.value && (
-                  <View style={styles.selectedIndicator}>
-                    <Ionicons name="checkmark-circle" size={24} color="white" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      />
-    </View>
-  );
-
-  const renderCategoryTab = () => (
-    <View style={styles.tabContent}>
-      <Text style={styles.tabTitle}>Category & Season</Text>
-      <Text style={styles.tabDescription}>When or for what occasion do you wear this? (Optional)</Text>
-      
-      <Controller
-        control={control}
-        name="category"
-        defaultValue=""
-        render={({ field: { onChange, value } }) => (
-          <View style={styles.optionsGrid}>
-            {categoryOptions.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.optionCard,
-                  value === option.value && styles.optionCardActive,
-                ]}
-                onPress={() => onChange(value === option.value ? '' : option.value)}
-              >
-                <Ionicons
-                  name={option.icon as any}
-                  size={32}
-                  color={value === option.value ? 'white' : '#6366f1'}
-                />
-                <Text style={[
-                  styles.optionLabel,
-                  value === option.value && styles.optionLabelActive,
-                ]}>
-                  {option.label}
-                </Text>
-                <Text style={[
-                  styles.optionDescription,
-                  value === option.value && styles.optionDescriptionActive,
-                ]}>
-                  {option.description}
-                </Text>
-                {value === option.value && (
-                  <View style={styles.selectedIndicator}>
-                    <Ionicons name="checkmark-circle" size={24} color="white" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      />
-    </View>
-  );
-
-  const renderExtrasTab = () => (
-    <View style={styles.tabContent}>
-      <Text style={styles.tabTitle}>Additional Information</Text>
-      <Text style={styles.tabDescription}>Optional details like purchase link and tags</Text>
-      
-      {/* Purchase Link */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Purchase Link</Text>
-        <Controller
-          control={control}
-          name="purchase_link"
-          defaultValue=""
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.purchase_link && styles.inputError]}
-              placeholder="https://example.com/product (optional)"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholderTextColor="#9ca3af"
-              autoCapitalize="none"
-              keyboardType="url"
-            />
-          )}
-        />
-        {errors.purchase_link && (
-          <Text style={styles.errorText}>{errors.purchase_link.message}</Text>
-        )}
-      </View>
-
-      {/* Tags */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Tags</Text>
-        <Controller
-          control={control}
-          name="tags"
-          defaultValue=""
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="comfortable, summer, favorite (separate with commas)"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholderTextColor="#9ca3af"
-              multiline
-            />
-          )}
-        />
-      </View>
-    </View>
-  );
-
   if (showCamera && cameraPermission) {
     return (
       <SafeAreaView style={styles.cameraContainer}>
@@ -846,12 +638,12 @@ export default function CameraEnhancedScreen() {
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {/* Image Section */}
           <View style={styles.imageSection}>
-            <Text style={styles.sectionTitle}>Photo *</Text>
+            <Text style={styles.sectionTitle}>Photo</Text>
             
             <View style={styles.privacyNotice}>
               <Ionicons name="shield-checkmark" size={16} color="#10b981" />
               <Text style={styles.privacyText}>
-                Privacy Protected: Only photos you explicitly select are accessed.
+                Privacy Protected: Only photos you explicitly select are accessed. No library browsing.
               </Text>
             </View>
             
@@ -914,71 +706,228 @@ export default function CameraEnhancedScreen() {
             </View>
           )}
 
-          {/* Tab Navigation */}
-          <View style={styles.tabNavigation}>
-            <TouchableOpacity
-              style={[styles.tab, currentTab === 'details' && styles.activeTab]}
-              onPress={() => setCurrentTab('details')}
-            >
-              <Ionicons 
-                name="information-circle" 
-                size={20} 
-                color={currentTab === 'details' ? '#6366f1' : '#9ca3af'} 
+          {/* Form Section */}
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Details</Text>
+            
+            {/* Name with Auto-Generate Option */}
+            <View style={styles.formGroup}>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Name *</Text>
+                <TouchableOpacity
+                  onPress={() => generateAutoName()}
+                  style={styles.autoButton}
+                >
+                  <Ionicons name="refresh" size={14} color="#6366f1" />
+                  <Text style={styles.autoButtonText}>Auto Generate</Text>
+                </TouchableOpacity>
+              </View>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    style={[styles.input, errors.name && styles.inputError]}
+                    placeholder="e.g., Blue T-shirt or leave blank for auto-indexing"
+                    value={value}
+                    onChangeText={onChange}
+                    placeholderTextColor="#9ca3af"
+                  />
+                )}
               />
-              <Text style={[styles.tabText, currentTab === 'details' && styles.activeTabText]}>
-                Details
-              </Text>
-            </TouchableOpacity>
+              {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+            </View>
 
-            <TouchableOpacity
-              style={[styles.tab, currentTab === 'function' && styles.activeTab]}
-              onPress={() => setCurrentTab('function')}
-            >
-              <Ionicons 
-                name="fitness" 
-                size={20} 
-                color={currentTab === 'function' ? '#6366f1' : '#9ca3af'} 
+            {/* Brand with Dropdown */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Brand</Text>
+              <Controller
+                control={control}
+                name="brand"
+                render={({ field: { onChange, value } }) => (
+                  <View>
+                    <TouchableOpacity
+                      style={styles.dropdownButton}
+                      onPress={() => setShowBrandDropdown(!showBrandDropdown)}
+                    >
+                      <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
+                        {value || 'Select or enter brand'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                    
+                    {showBrandDropdown && renderDropdown(
+                      filteredBrands,
+                      brandSearch,
+                      setBrandSearch,
+                      (selectedBrand) => {
+                        onChange(selectedBrand);
+                        setShowBrandDropdown(false);
+                        setBrandSearch('');
+                      },
+                      'Brand'
+                    )}
+                  </View>
+                )}
               />
-              <Text style={[styles.tabText, currentTab === 'function' && styles.activeTabText]}>
-                Function
-              </Text>
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.tab, currentTab === 'category' && styles.activeTab]}
-              onPress={() => setCurrentTab('category')}
-            >
-              <Ionicons 
-                name="pricetag" 
-                size={20} 
-                color={currentTab === 'category' ? '#6366f1' : '#9ca3af'} 
+            {/* Color with Dropdown */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Color</Text>
+              <Controller
+                control={control}
+                name="color"
+                render={({ field: { onChange, value } }) => (
+                  <View>
+                    <TouchableOpacity
+                      style={styles.dropdownButton}
+                      onPress={() => setShowColorDropdown(!showColorDropdown)}
+                    >
+                      <View style={styles.colorPreview}>
+                        {value && (
+                          <View style={[styles.colorDot, { backgroundColor: value.toLowerCase() }]} />
+                        )}
+                        <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
+                          {value || 'Select or enter color'}
+                        </Text>
+                      </View>
+                      <Ionicons name="chevron-down" size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                    
+                    {showColorDropdown && renderDropdown(
+                      filteredColors,
+                      colorSearch,
+                      setColorSearch,
+                      (selectedColor) => {
+                        onChange(selectedColor);
+                        setShowColorDropdown(false);
+                        setColorSearch('');
+                      },
+                      'Color'
+                    )}
+                  </View>
+                )}
               />
-              <Text style={[styles.tabText, currentTab === 'category' && styles.activeTabText]}>
-                Category
-              </Text>
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.tab, currentTab === 'extras' && styles.activeTab]}
-              onPress={() => setCurrentTab('extras')}
-            >
-              <Ionicons 
-                name="add-circle" 
-                size={20} 
-                color={currentTab === 'extras' ? '#6366f1' : '#9ca3af'} 
+            {/* Function */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Function</Text>
+              <Controller
+                control={control}
+                name="function"
+                render={({ field: { onChange, value } }) => (
+                  <ScrollView 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.functionSelector}
+                    contentContainerStyle={styles.functionContent}
+                  >
+                    {functionOptions.map((option) => (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={[
+                          styles.functionOption,
+                          value === option.value && styles.functionOptionActive,
+                        ]}
+                        onPress={() => onChange(option.value)}
+                      >
+                        <Ionicons
+                          name={option.icon as any}
+                          size={20}
+                          color={value === option.value ? 'white' : '#6b7280'}
+                        />
+                        <Text
+                          style={[
+                            styles.functionText,
+                            value === option.value && styles.functionTextActive,
+                          ]}
+                        >
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
               />
-              <Text style={[styles.tabText, currentTab === 'extras' && styles.activeTabText]}>
-                Extras
-              </Text>
-            </TouchableOpacity>
-          </View>
+            </View>
 
-          {/* Tab Content */}
-          <View style={styles.tabContainer}>
-            {currentTab === 'details' && renderDetailsTab()}
-            {currentTab === 'function' && renderFunctionTab()}
-            {currentTab === 'category' && renderCategoryTab()}
-            {currentTab === 'extras' && renderExtrasTab()}
+            {/* Category with Dropdown */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Category</Text>
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: { onChange, value } }) => (
+                  <View>
+                    <TouchableOpacity
+                      style={styles.dropdownButton}
+                      onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                    >
+                      <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
+                        {value || 'Select or enter category'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                    
+                    {showCategoryDropdown && renderDropdown(
+                      filteredCategories,
+                      categorySearch,
+                      setCategorySearch,
+                      (selectedCategory) => {
+                        onChange(selectedCategory);
+                        setShowCategoryDropdown(false);
+                        setCategorySearch('');
+                      },
+                      'Category'
+                    )}
+                  </View>
+                )}
+              />
+            </View>
+
+            {/* Purchase Link */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Purchase Link</Text>
+              <Controller
+                control={control}
+                name="purchase_link"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    style={[styles.input, errors.purchase_link && styles.inputError]}
+                    placeholder="https://example.com/product"
+                    value={value}
+                    onChangeText={onChange}
+                    placeholderTextColor="#9ca3af"
+                    autoCapitalize="none"
+                    keyboardType="url"
+                  />
+                )}
+              />
+              {errors.purchase_link && (
+                <Text style={styles.errorText}>{errors.purchase_link.message}</Text>
+              )}
+            </View>
+
+            {/* Tags */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Tags</Text>
+              <Controller
+                control={control}
+                name="tags"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    style={styles.input}
+                    placeholder="comfortable, summer, favorite (separate with commas)"
+                    value={value}
+                    onChangeText={onChange}
+                    placeholderTextColor="#9ca3af"
+                    multiline
+                  />
+                )}
+              />
+            </View>
           </View>
 
           {/* Submit Button */}
@@ -1174,57 +1123,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: '#6366f1',
   },
-  // Tab Navigation Styles
-  tabNavigation: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  tab: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#6366f1',
-  },
-  tabText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#9ca3af',
-    marginTop: 4,
-  },
-  activeTabText: {
-    color: '#6366f1',
-    fontWeight: '600',
-  },
-  // Tab Content Styles
-  tabContainer: {
+  formSection: {
     backgroundColor: 'white',
     padding: 20,
     marginBottom: 12,
-    minHeight: 400,
   },
-  tabContent: {
-    flex: 1,
-  },
-  tabTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 8,
-  },
-  tabDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  // Form Styles
   formGroup: {
     marginBottom: 20,
   },
@@ -1339,51 +1242,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  // Options Grid Styles
-  optionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  optionCard: {
-    width: '48%',
-    backgroundColor: '#f8fafc',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    position: 'relative',
-    minHeight: 120,
-  },
-  optionCardActive: {
-    backgroundColor: '#6366f1',
-    borderColor: '#4f46e5',
-  },
-  optionLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1f2937',
+  functionSelector: {
     marginTop: 8,
-    textAlign: 'center',
   },
-  optionLabelActive: {
-    color: 'white',
+  functionContent: {
+    gap: 8,
   },
-  optionDescription: {
-    fontSize: 12,
+  functionOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 20,
+    gap: 6,
+  },
+  functionOptionActive: {
+    backgroundColor: '#6366f1',
+  },
+  functionText: {
+    fontSize: 14,
+    fontWeight: '500',
     color: '#6b7280',
-    marginTop: 4,
-    textAlign: 'center',
-    lineHeight: 16,
   },
-  optionDescriptionActive: {
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  selectedIndicator: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
+  functionTextActive: {
+    color: 'white',
   },
   submitButton: {
     backgroundColor: '#6366f1',
