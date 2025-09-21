@@ -296,10 +296,18 @@ export default function HijabStylesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string>('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('All');
+  const [selectedFaceShape, setSelectedFaceShape] = useState<string>('All');
+  const [selectedColorCategory, setSelectedColorCategory] = useState<string>('All');
   const [expandedStyle, setExpandedStyle] = useState<string | null>(null);
+  const [currentTab, setCurrentTab] = useState<'styles' | 'faceShape' | 'colors' | 'shopping'>('styles');
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [detectedFaceShape, setDetectedFaceShape] = useState<string | null>(null);
 
   const regions = ['All', 'Middle East', 'South Asia', 'Africa', 'Southeast Asia', 'Europe', 'Contemporary', 'Universal'];
   const difficulties = ['All', 'Beginner', 'Intermediate', 'Advanced'];
+  const faceShapeOptions = ['All', 'oval', 'round', 'square', 'heart', 'long', 'diamond'];
+  const colorCategories = ['All', 'neutrals', 'warm', 'cool', 'bold'];
 
   const filteredStyles = Object.entries(hijabStyles).filter(([key, style]) => {
     const matchesSearch = !searchQuery || 
@@ -309,9 +317,120 @@ export default function HijabStylesScreen() {
     
     const matchesRegion = selectedRegion === 'All' || style.region === selectedRegion;
     const matchesDifficulty = selectedDifficulty === 'All' || style.difficulty === selectedDifficulty;
+    const matchesFaceShape = selectedFaceShape === 'All' || style.faceShapes?.includes(selectedFaceShape);
+    const matchesColor = selectedColorCategory === 'All' || style.colorRecommendations?.includes(selectedColorCategory);
     
-    return matchesSearch && matchesRegion && matchesDifficulty;
+    return matchesSearch && matchesRegion && matchesDifficulty && matchesFaceShape && matchesColor;
   });
+
+  const analyzeImageForFaceShape = async (base64Image: string) => {
+    try {
+      setIsAnalyzing(true);
+      const response = await fetch(`${BACKEND_URL}/api/ai/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_base64: base64Image,
+          analysis_type: 'face_shape_hijab',
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Analysis failed');
+      
+      const result = await response.json();
+      
+      // Parse AI response to determine face shape
+      const aiResponse = result.result.toLowerCase();
+      let detectedShape = 'oval'; // Default fallback
+      
+      Object.keys(faceShapes).forEach(shape => {
+        if (aiResponse.includes(shape) || aiResponse.includes(faceShapes[shape].name.toLowerCase())) {
+          detectedShape = shape;
+        }
+      });
+      
+      setDetectedFaceShape(detectedShape);
+      setSelectedFaceShape(detectedShape);
+      return detectedShape;
+    } catch (error) {
+      console.error('Face shape analysis error:', error);
+      Alert.alert('Analysis Error', 'Could not analyze face shape. Please try manual selection.');
+      return null;
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const pickImageForAnalysis = async () => {
+    if (Platform.OS === 'web') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (event: any) => {
+        const file = event.target.files[0];
+        if (file) {
+          if (!file.type.startsWith('image/')) {
+            Alert.alert('Invalid File', 'Please select an image file only.');
+            return;
+          }
+          
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64 = e.target?.result as string;
+            const base64Data = base64.split(',')[1];
+            setImageUri(base64);
+            analyzeImageForFaceShape(base64Data);
+          };
+          reader.readAsDataURL(file);
+        }
+        input.value = '';
+      };
+      input.click();
+    } else {
+      try {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+          base64: true,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+          const asset = result.assets[0];
+          setImageUri(asset.uri);
+          if (asset.base64) {
+            analyzeImageForFaceShape(asset.base64);
+          }
+        }
+      } catch (error) {
+        console.error('Error picking image:', error);
+        Alert.alert('Error', 'Failed to pick image');
+      }
+    }
+  };
+
+  const openAffiliateLink = async (store: any) => {
+    const fullUrl = store.website + store.affiliate;
+    try {
+      const supported = await Linking.canOpenURL(fullUrl);
+      if (supported) {
+        await Linking.openURL(fullUrl);
+      } else {
+        // For demo purposes
+        Alert.alert(
+          'Visit Store', 
+          `${store.name}\n${store.description}\n\n${fullUrl}`,
+          [
+            { text: 'Copy Link', onPress: () => {/* Copy to clipboard logic */} },
+            { text: 'Close' }
+          ]
+        );
+      }
+    } catch (error) {
+      Alert.alert('Link Error', 'Could not open store link');
+    }
+  };
 
   const openTutorial = async (url: string, title: string) => {
     const supported = await Linking.canOpenURL(url);
