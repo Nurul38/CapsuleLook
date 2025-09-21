@@ -109,9 +109,16 @@ export default function WardrobeScreen() {
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.color?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.ai_description?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesFilter = filterType === 'all' || item.function === filterType;
+    let matchesFilter = true;
+    if (filterType !== 'all') {
+      // Check if filter matches function or category
+      matchesFilter = 
+        item.function?.toLowerCase() === filterType ||
+        item.category?.toLowerCase() === filterType;
+    }
     
     return matchesSearch && matchesFilter;
   });
