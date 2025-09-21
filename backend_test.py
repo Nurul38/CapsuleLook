@@ -221,6 +221,98 @@ class VisibeeAPITester:
         except requests.exceptions.RequestException as e:
             self.log_test("AI Analysis", False, f"Request error: {str(e)}")
             return None
+
+    def test_face_shape_analysis(self):
+        """Test the new face_shape_hijab analysis type"""
+        try:
+            # Use a more realistic face image base64 for face shape analysis
+            face_image_base64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            
+            analysis_request = {
+                "image_base64": face_image_base64,
+                "analysis_type": "face_shape_hijab"
+            }
+            
+            response = self.session.post(f"{self.base_url}/ai/analyze", 
+                                       json=analysis_request, timeout=TIMEOUT)
+            
+            if response.status_code == 200:
+                data = response.json()
+                required_fields = ["analysis_type", "result"]
+                
+                if all(field in data for field in required_fields):
+                    if data["analysis_type"] == "face_shape_hijab" and data["result"]:
+                        # Check if result contains face shape analysis keywords
+                        result_lower = data["result"].lower()
+                        face_shape_keywords = ["face shape", "oval", "round", "square", "heart", "long", "diamond", "hijab", "recommendation"]
+                        
+                        has_face_shape_content = any(keyword in result_lower for keyword in face_shape_keywords)
+                        
+                        if has_face_shape_content:
+                            self.log_test("Face Shape Analysis", True, f"Face shape analysis completed: {data['result'][:100]}...")
+                            return data
+                        else:
+                            self.log_test("Face Shape Analysis", False, "Result doesn't contain face shape analysis content", 
+                                        {"result": data["result"]})
+                            return None
+                    else:
+                        self.log_test("Face Shape Analysis", False, "Invalid face shape analysis response", {"response": data})
+                        return None
+                else:
+                    missing_fields = [f for f in required_fields if f not in data]
+                    self.log_test("Face Shape Analysis", False, f"Missing fields: {missing_fields}", 
+                                {"response": data})
+                    return None
+            else:
+                self.log_test("Face Shape Analysis", False, f"Status code: {response.status_code}", 
+                            {"response": response.text})
+                return None
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Face Shape Analysis", False, f"Request error: {str(e)}")
+            return None
+
+    def test_backward_compatibility(self):
+        """Test that existing analysis types still work after face shape addition"""
+        analysis_types = ["description", "color", "style", "kibbe"]
+        successful_tests = 0
+        
+        for analysis_type in analysis_types:
+            try:
+                analysis_request = {
+                    "image_base64": SAMPLE_IMAGE_BASE64,
+                    "analysis_type": analysis_type
+                }
+                
+                response = self.session.post(f"{self.base_url}/ai/analyze", 
+                                           json=analysis_request, timeout=TIMEOUT)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if (data.get("analysis_type") == analysis_type and 
+                        data.get("result") and 
+                        len(data["result"]) > 10):  # Ensure meaningful response
+                        self.log_test(f"Backward Compatibility - {analysis_type}", True, 
+                                    f"{analysis_type} analysis working correctly")
+                        successful_tests += 1
+                    else:
+                        self.log_test(f"Backward Compatibility - {analysis_type}", False, 
+                                    "Invalid response format or empty result", {"response": data})
+                else:
+                    self.log_test(f"Backward Compatibility - {analysis_type}", False, 
+                                f"Status code: {response.status_code}", {"response": response.text})
+                    
+            except requests.exceptions.RequestException as e:
+                self.log_test(f"Backward Compatibility - {analysis_type}", False, f"Request error: {str(e)}")
+        
+        # Overall backward compatibility assessment
+        if successful_tests == len(analysis_types):
+            self.log_test("Overall Backward Compatibility", True, f"All {len(analysis_types)} existing analysis types working")
+            return True
+        else:
+            self.log_test("Overall Backward Compatibility", False, 
+                        f"Only {successful_tests}/{len(analysis_types)} analysis types working")
+            return False
     
     def test_search_functionality(self):
         """Test search endpoint with various queries"""
