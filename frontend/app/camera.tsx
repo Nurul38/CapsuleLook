@@ -640,6 +640,13 @@ export default function CameraScreen() {
           <View style={styles.imageSection}>
             <Text style={styles.sectionTitle}>Photo</Text>
             
+            <View style={styles.privacyNotice}>
+              <Ionicons name="shield-checkmark" size={16} color="#10b981" />
+              <Text style={styles.privacyText}>
+                Privacy Protected: Only photos you explicitly select are accessed. No library browsing.
+              </Text>
+            </View>
+            
             {imageUri ? (
               <View style={styles.imageContainer}>
                 <Image source={{ uri: imageUri }} style={styles.selectedImage} contentFit="cover" />
