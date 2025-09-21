@@ -1,0 +1,92 @@
+{
+  "expo": {
+    "name": "Visibee",
+    "slug": "visibee",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "visibee",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "description": "Your Friendly E-Wardrobe - AI-powered clothing organization for teenagers and women with ADHD support",
+    "primaryColor": "#6366f1",
+    "backgroundColor": "#6366f1",
+    "privacy": "public",
+    "platforms": ["ios", "android", "web"],
+    "githubUrl": "https://github.com/yourusername/visibee-app",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.visibee.app",
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSCameraUsageDescription": "Visibee needs camera access to take photos of your clothing items for wardrobe management",
+        "NSPhotoLibraryUsageDescription": "Visibee needs photo library access to select images of your clothing items",
+        "NSPhotoLibraryAddUsageDescription": "Visibee needs permission to save photos to your library"
+      },
+      "associatedDomains": ["applinks:visibee.app"],
+      "appStoreUrl": "https://apps.apple.com/app/visibee/id[APP_ID]",
+      "splash": {
+        "image": "./assets/images/splash-icon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#6366f1"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#6366f1"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.visibee.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET"
+      ],
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.visibee.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#6366f1"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Visibee needs access to your photo library to select clothing images for your wardrobe.",
+          "cameraPermission": "Visibee needs camera access to take photos of your clothing items."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "visibee",
+            "project": "visibee-app"
+          }
+        }
+      ]
+    }
+  }
+}
