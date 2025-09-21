@@ -474,23 +474,48 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
+  hangerIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  hangerBar: {
+    transform: [{ rotate: '0deg' }],
+  },
+  hangerHook: {
+    position: 'absolute',
+    top: -8,
+    width: 2,
+    height: 12,
+    backgroundColor: '#B76E79',
+    borderRadius: 1,
+  },
+  beeWing: {
+    position: 'absolute',
+    top: -4,
+    right: -12,
+  },
+  beeEmoji: {
+    fontSize: 14,
+  },
   heroTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
     color: '#B76E79', // Rose Gold
     textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 34,
-    letterSpacing: -0.5,
-    // Would use Playfair Display in production
+    marginBottom: 8,
+    lineHeight: 38,
+    letterSpacing: -0.8,
+    // Would use elegant serif font like Playfair Display in production
   },
   heroSubtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#4B0082', // Deep Plum
     textAlign: 'center',
     marginBottom: 8,
-    lineHeight: 22,
-    // Would use Montserrat in production
+    lineHeight: 24,
+    fontWeight: '500',
+    // Would use clean sans-serif font like Montserrat in production
   },
   tagline: {
     fontSize: 14,
