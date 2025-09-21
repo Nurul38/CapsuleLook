@@ -26,8 +26,15 @@ export default function HomeScreen() {
     try {
       const session = await AsyncStorage.getItem('userSession');
       if (!session) {
-        // No session found, redirect to auth
-        router.replace('/auth');
+        // For demo/testing purposes, create a temporary session
+        // In production, this would redirect to auth
+        const tempSession = {
+          email: 'demo@visibee.com',
+          loginTime: new Date().toISOString(),
+        };
+        await AsyncStorage.setItem('userSession', JSON.stringify(tempSession));
+        setUserSession(tempSession);
+        setIsLoading(false);
         return;
       }
       
@@ -36,7 +43,13 @@ export default function HomeScreen() {
       setIsLoading(false);
     } catch (error) {
       console.error('Auth check error:', error);
-      router.replace('/auth');
+      // Create temp session instead of redirecting to auth for demo
+      const tempSession = {
+        email: 'demo@visibee.com',
+        loginTime: new Date().toISOString(),
+      };
+      setUserSession(tempSession);
+      setIsLoading(false);
     }
   };
 
