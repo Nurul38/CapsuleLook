@@ -143,6 +143,13 @@ export default function CameraScreen() {
   };
 
   const requestPermissions = async () => {
+    if (Platform.OS === 'web') {
+      // For web, we don't need to request these specific permissions
+      setCameraPermission(true);
+      setMediaPermission(true);
+      return;
+    }
+
     const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
     setCameraPermission(cameraStatus === 'granted');
 
