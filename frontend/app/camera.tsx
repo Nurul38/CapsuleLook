@@ -479,12 +479,21 @@ export default function CameraEnhancedScreen() {
     }
   };
 
+  const filteredColors = colorOptions.filter(color =>
+    color.toLowerCase().includes(colorSearch.toLowerCase())
+  );
+
+  const filteredBrands = brandOptions.filter(brand =>
+    brand.toLowerCase().includes(brandSearch.toLowerCase())
+  );
+
   const renderDropdown = (
     items: string[],
     searchValue: string,
     setSearchValue: (value: string) => void,
     onSelect: (value: string) => void,
-    placeholder: string
+    placeholder: string,
+    isBrandDropdown: boolean = false
   ) => (
     <View style={styles.dropdown}>
       <TextInput
@@ -495,28 +504,62 @@ export default function CameraEnhancedScreen() {
         placeholderTextColor="#9ca3af"
       />
       <ScrollView style={styles.dropdownList} nestedScrollEnabled>
-        {items.map((item) => (
-          <TouchableOpacity
-            key={item}
-            style={styles.dropdownItem}
-            onPress={() => {
-              onSelect(item);
-              setSearchValue('');
-            }}
-          >
-            <Text style={styles.dropdownItemText}>{item}</Text>
-          </TouchableOpacity>
-        ))}
+        {items.map((item) => {
+          const ethicsStatus = isBrandDropdown ? checkBrandEthics(item) : 'neutral';
+          
+          return (
+            <TouchableOpacity
+              key={item}
+              style={[
+                styles.dropdownItem,
+                ethicsStatus === 'ethical' && styles.ethicalDropdownItem,
+                ethicsStatus === 'problematic' && styles.problematicDropdownItem
+              ]}
+              onPress={() => {
+                if (isBrandDropdown) {
+                  handleBrandSelection(item);
+                } else {
+                  onSelect(item);
+                  setSearchValue('');
+                }
+              }}
+            >
+              <View style={styles.dropdownItemContent}>
+                <Text style={[
+                  styles.dropdownItemText,
+                  ethicsStatus === 'ethical' && styles.ethicalText,
+                  ethicsStatus === 'problematic' && styles.problematicText
+                ]}>
+                  {item}
+                </Text>
+                {ethicsStatus === 'ethical' && (
+                  <Ionicons name="leaf" size={16} color="#10b981" />
+                )}
+                {ethicsStatus === 'problematic' && (
+                  <Ionicons name="warning" size={16} color="#ef4444" />
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+        
         <TouchableOpacity
           style={[styles.dropdownItem, styles.customOption]}
           onPress={() => {
-            onSelect(searchValue);
-            setSearchValue('');
+            if (isBrandDropdown) {
+              handleBrandSelection(searchValue);
+            } else {
+              onSelect(searchValue);
+              setSearchValue('');
+            }
           }}
         >
           <Ionicons name="add" size={16} color="#6366f1" />
           <Text style={[styles.dropdownItemText, { color: '#6366f1' }]}>
             Add "{searchValue}"
+            {isBrandDropdown && searchValue && checkBrandEthics(searchValue) === 'problematic' && 
+              <Text style={{ color: '#ef4444' }}> ⚠️</Text>
+            }
           </Text>
         </TouchableOpacity>
       </ScrollView>
