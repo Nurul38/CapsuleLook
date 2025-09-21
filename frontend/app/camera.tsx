@@ -244,41 +244,120 @@ export default function CameraScreen() {
   const autoFillFromAnalysis = (analysis: string) => {
     const lowerAnalysis = analysis.toLowerCase();
     
-    // Try to extract color
-    const detectedColor = colorOptions.find(color => 
-      lowerAnalysis.includes(color.toLowerCase())
-    );
+    // Enhanced color detection with more comprehensive color matching
+    const colorMappings = {
+      'red': ['red', 'crimson', 'cherry', 'burgundy', 'maroon', 'scarlet'],
+      'blue': ['blue', 'navy', 'royal', 'cobalt', 'sapphire', 'azure'],
+      'green': ['green', 'emerald', 'forest', 'lime', 'olive', 'mint'],
+      'yellow': ['yellow', 'golden', 'amber', 'honey', 'lemon', 'canary'],
+      'black': ['black', 'ebony', 'charcoal', 'jet', 'midnight'],
+      'white': ['white', 'ivory', 'cream', 'pearl', 'snow', 'off-white'],
+      'gray': ['gray', 'grey', 'silver', 'slate', 'ash', 'pewter'],
+      'brown': ['brown', 'tan', 'beige', 'chocolate', 'coffee', 'camel'],
+      'pink': ['pink', 'rose', 'blush', 'coral', 'salmon', 'magenta'],
+      'purple': ['purple', 'violet', 'lavender', 'plum', 'indigo', 'mauve'],
+      'orange': ['orange', 'peach', 'apricot', 'tangerine', 'rust'],
+    };
+    
+    let detectedColor = '';
+    for (const [color, variations] of Object.entries(colorMappings)) {
+      if (variations.some(variation => lowerAnalysis.includes(variation))) {
+        detectedColor = color.charAt(0).toUpperCase() + color.slice(1);
+        break;
+      }
+    }
+    
     if (detectedColor && !watch('color')) {
       setValue('color', detectedColor);
     }
 
-    // Try to extract garment type for name
-    const garmentTypes = ['shirt', 'pants', 'dress', 'skirt', 'jacket', 'sweater', 
-                         'jeans', 'shorts', 't-shirt', 'blouse', 'top', 'bottom'];
-    const detectedType = garmentTypes.find(type => lowerAnalysis.includes(type));
-    if (detectedType && !watch('name')) {
-      generateAutoName(detectedType);
+    // Enhanced garment type detection
+    const garmentMappings = {
+      'shirt': ['shirt', 'blouse', 'top', 'tee', 't-shirt', 'tank top', 'camisole'],
+      'dress': ['dress', 'gown', 'frock', 'sundress', 'maxi dress', 'mini dress'],
+      'pants': ['pants', 'trousers', 'slacks', 'chinos', 'leggings'],
+      'jeans': ['jeans', 'denim'],
+      'skirt': ['skirt', 'mini skirt', 'maxi skirt', 'pleated skirt'],
+      'jacket': ['jacket', 'blazer', 'coat', 'cardigan', 'hoodie', 'sweater'],
+      'shorts': ['shorts', 'bermuda', 'hot pants'],
+      'shoes': ['shoes', 'boots', 'sandals', 'sneakers', 'heels', 'flats'],
+      'bag': ['bag', 'purse', 'backpack', 'tote', 'clutch', 'handbag'],
+    };
+    
+    let detectedType = '';
+    for (const [type, variations] of Object.entries(garmentMappings)) {
+      if (variations.some(variation => lowerAnalysis.includes(variation))) {
+        detectedType = type;
+        break;
+      }
+    }
+    
+    // Generate smart auto-name based on category, color, and type
+    if (detectedType || detectedColor) {
+      generateSmartAutoName(detectedType, detectedColor);
     }
   };
 
   const generateAutoName = (baseType?: string) => {
     const currentColor = watch('color');
     const currentBrand = watch('brand');
+    const currentCategory = watch('category');
     const nextIndex = itemCount + 1;
+    
+    generateSmartAutoName(baseType, currentColor, currentBrand, currentCategory, nextIndex);
+  };
+
+  const generateSmartAutoName = (
+    type?: string, 
+    color?: string, 
+    brand?: string, 
+    category?: string, 
+    index?: number
+  ) => {
+    const currentColor = color || watch('color');
+    const currentBrand = brand || watch('brand');
+    const currentCategory = category || watch('category');
+    const currentIndex = index || itemCount + 1;
     
     let autoName = '';
     
-    if (currentColor && baseType) {
-      autoName = `${currentColor} ${baseType}`;
-    } else if (baseType) {
-      autoName = baseType.charAt(0).toUpperCase() + baseType.slice(1);
-    } else if (currentColor) {
-      autoName = `${currentColor} Item`;
-    } else {
-      autoName = `Item ${String(nextIndex).padStart(3, '0')}`;
+    // Priority 1: Category-based naming with running numbers
+    if (currentCategory) {
+      const categoryCount = itemCount + 1; // This should be category-specific count in real app
+      autoName = `${currentCategory}-${String(categoryCount).padStart(3, '0')}`;
+      
+      // Add descriptors if available
+      if (currentColor && type) {
+        autoName += ` (${currentColor} ${type.charAt(0).toUpperCase() + type.slice(1)})`;
+      } else if (currentColor) {
+        autoName += ` (${currentColor})`;
+      } else if (type) {
+        autoName += ` (${type.charAt(0).toUpperCase() + type.slice(1)})`;
+      }
+    } 
+    // Priority 2: Type-based naming
+    else if (type) {
+      const typeFormatted = type.charAt(0).toUpperCase() + type.slice(1);
+      if (currentColor) {
+        autoName = `${currentColor} ${typeFormatted}`;
+      } else {
+        autoName = typeFormatted;
+      }
+      
+      // Add running number for same type
+      autoName += `-${String(currentIndex).padStart(3, '0')}`;
+    }
+    // Priority 3: Color-based naming
+    else if (currentColor) {
+      autoName = `${currentColor} Item-${String(currentIndex).padStart(3, '0')}`;
+    }
+    // Priority 4: Generic indexed naming
+    else {
+      autoName = `Item-${String(currentIndex).padStart(3, '0')}`;
     }
     
-    if (currentBrand && baseType) {
+    // Add brand prefix if available
+    if (currentBrand && !autoName.includes(currentBrand)) {
       autoName = `${currentBrand} ${autoName}`;
     }
     
