@@ -101,6 +101,22 @@ async def analyze_clothing_with_ai(image_base64: str, analysis_type: str) -> str
             prompt = "Analyze the style of this clothing item. Categorize it (casual, formal, athletic, etc.) and describe its fashion characteristics."
         elif analysis_type == "kibbe":
             prompt = "Analyze this clothing item in terms of Kibbe body type styling. Describe what Kibbe body types this item would suit best and why."
+        elif analysis_type == "face_shape_hijab":
+            prompt = """Analyze this person's face shape for hijab styling recommendations. 
+
+            Please identify the face shape from these categories:
+            - Oval: balanced proportions, slightly longer than wide, soft jawline
+            - Round: full cheeks, width equals length, soft features  
+            - Square: strong jawline, wide forehead, angular features
+            - Heart: wide forehead, narrow chin, prominent cheekbones
+            - Long: length greater than width, high forehead, elongated features
+            - Diamond: narrow forehead and chin, wide cheekbones, angular features
+
+            Provide your analysis in this format:
+            Face Shape: [detected shape]
+            Confidence: [high/medium/low]
+            Reasoning: [brief explanation of key features observed]
+            Hijab Recommendations: [2-3 specific style suggestions based on the face shape]"""
         else:
             prompt = "Analyze this clothing item comprehensively."
         
