@@ -203,15 +203,23 @@ export default function CameraScreen() {
     console.log('pickImage called, Platform.OS:', Platform.OS);
     
     if (Platform.OS === 'web') {
-      console.log('Using web file picker...');
-      // Web-compatible image picker
+      console.log('Using privacy-focused web file picker...');
+      // Web-compatible image picker - maximum privacy (user explicitly selects files)
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = 'image/*';
+      input.accept = 'image/*'; // Only image files
+      input.multiple = false;   // Only single file selection
+      
       input.onchange = (event: any) => {
         console.log('File selected:', event.target.files[0]);
         const file = event.target.files[0];
         if (file) {
+          // Validate file type for security
+          if (!file.type.startsWith('image/')) {
+            Alert.alert('Invalid File', 'Please select an image file only.');
+            return;
+          }
+          
           const reader = new FileReader();
           reader.onload = (e) => {
             const base64 = e.target?.result as string;
@@ -225,37 +233,50 @@ export default function CameraScreen() {
           };
           reader.readAsDataURL(file);
         }
+        
+        // Clear the input to ensure privacy (no file path stored)
+        input.value = '';
       };
+      
       input.click();
       return;
     }
 
-    console.log('Using native image picker, mediaPermission:', mediaPermission);
-    if (!mediaPermission) {
-      Alert.alert('Permission Required', 'Media library permission is required.');
-      return;
-    }
-
+    console.log('Using privacy-focused native image picker');
+    
     try {
+      // Most privacy-focused configuration for mobile
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-        base64: true,
+        allowsEditing: true,        // User can crop/edit before selection
+        aspect: [1, 1],            // Square aspect ratio
+        quality: 0.8,              // Reduce file size
+        base64: true,              // Get base64 for processing
+        allowsMultipleSelection: false, // Only single photo selection
+        selectionLimit: 1,         // Limit to 1 photo for privacy
+        // Note: No access to photo library metadata or location data
       });
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
+        
+        // Additional privacy check - ensure it's an image
+        if (!asset.type || asset.type !== 'image') {
+          Alert.alert('Invalid Selection', 'Please select an image file only.');
+          return;
+        }
+        
         setImageUri(asset.uri);
         setImageBase64(asset.base64 || '');
+        
+        console.log('Image selected - privacy protected, no metadata access');
         
         // Show AI analysis options
         setShowAIOptions(true);
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image');
+      Alert.alert('Selection Error', 'Failed to select image. Please try again.');
     }
   };
 
