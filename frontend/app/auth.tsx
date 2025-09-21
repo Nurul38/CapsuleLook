@@ -414,28 +414,45 @@ const styles = StyleSheet.create({
   circle: {
     position: 'absolute',
     borderRadius: 1000,
-    opacity: 0.1,
+    opacity: 0.15,
   },
   circle1: {
-    width: 300,
-    height: 300,
-    backgroundColor: '#ec4899',
-    top: -150,
-    right: -100,
+    width: 280,
+    height: 280,
+    backgroundColor: '#a855f7', // Cool purple
+    top: -140,
+    right: -80,
   },
   circle2: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#8b5cf6',
-    top: 50,
-    left: -50,
+    width: 180,
+    height: 180,
+    backgroundColor: '#06b6d4', // Cool teal
+    top: 60,
+    left: -60,
   },
   circle3: {
-    width: 150,
-    height: 150,
-    backgroundColor: '#06b6d4',
-    top: 200,
+    width: 120,
+    height: 120,
+    backgroundColor: '#8b5cf6', // Cool lavender
+    top: 180,
+    right: 40,
+  },
+  dressIcon: {
+    position: 'absolute',
+    top: 100,
     right: 50,
+    width: 80,
+    height: 100,
+    opacity: 0.2,
+  },
+  dressPosition: {
+    backgroundColor: '#60a5fa', // Cool blue for dress
+    borderRadius: 40,
+    // Create a simple dress shape using border radius and positioning
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
   },
   header: {
     paddingHorizontal: 32,
