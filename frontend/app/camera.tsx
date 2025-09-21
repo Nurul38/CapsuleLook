@@ -180,6 +180,31 @@ export default function CameraScreen() {
   };
 
   const pickImage = async () => {
+    if (Platform.OS === 'web') {
+      // Web-compatible image picker
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (event: any) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64 = e.target?.result as string;
+            const base64Data = base64.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+            setImageUri(base64);
+            setImageBase64(base64Data);
+            
+            // Show AI analysis options
+            setShowAIOptions(true);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
+      return;
+    }
+
     if (!mediaPermission) {
       Alert.alert('Permission Required', 'Media library permission is required.');
       return;
