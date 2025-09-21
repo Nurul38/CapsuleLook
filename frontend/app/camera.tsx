@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
+// Note: Removed MediaLibrary import for privacy - we only access user-selected photos
 let Camera, CameraView;
 try {
   const cameraModule = require('expo-camera');
