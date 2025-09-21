@@ -129,10 +129,15 @@ export default function AuthScreen() {
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <View style={styles.logo}>
-                <Ionicons name="shirt" size={32} color="white" />
+                <Ionicons name="shirt" size={28} color="white" />
               </View>
               <Text style={styles.title}>Visibee</Text>
               <Text style={styles.subtitle}>Your Friendly E-Wardrobe</Text>
+              <View style={styles.sparkles}>
+                <Text style={styles.sparkleText}>✨</Text>
+                <Text style={styles.sparkleText}>🌸</Text>
+                <Text style={styles.sparkleText}>✨</Text>
+              </View>
             </View>
             
             <Text style={styles.welcomeText}>
