@@ -130,11 +130,8 @@ export default function AuthScreen() {
             <View style={styles.logoContainer}>
               <View style={styles.logo}>
                 <View style={styles.hangerIcon}>
-                  <Ionicons name="remove" size={24} color="#B76E79" style={styles.hangerBar} />
-                  <View style={styles.hangerHook} />
-                  <View style={styles.beeWing}>
-                    <Text style={styles.beeEmoji}>🐝</Text>
-                  </View>
+                  <Text style={styles.hangerText}>👗</Text>
+                  <Text style={styles.beeEmoji}>🐝</Text>
                 </View>
               </View>
               <Text style={styles.heroTitle}>Visibee</Text>
