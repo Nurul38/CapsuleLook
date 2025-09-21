@@ -485,13 +485,19 @@ class VisibeeAPITester:
             # Test 7: Delete clothing item
             self.test_delete_clothing_item(item_id)
         
-        # Test 8: AI Analysis
+        # Test 8: AI Analysis (original)
         self.test_ai_analysis()
         
-        # Test 9: Search functionality
+        # Test 9: Face Shape Analysis (NEW FEATURE)
+        self.test_face_shape_analysis()
+        
+        # Test 10: Backward Compatibility (NEW FEATURE)
+        self.test_backward_compatibility()
+        
+        # Test 11: Search functionality
         self.test_search_functionality()
         
-        # Test 10: Error scenarios
+        # Test 12: Error scenarios
         self.test_error_scenarios()
         
         # Cleanup
