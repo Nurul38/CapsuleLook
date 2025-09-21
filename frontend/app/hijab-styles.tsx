@@ -13,15 +13,197 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-// Comprehensive Hijab Styles Database
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
+  TextInput,
+  Linking,
+  Platform,
+  Alert,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+
+// Face Shape Categories for Hijab Styling
+const faceShapes = {
+  oval: {
+    name: 'Oval Face',
+    characteristics: ['Balanced proportions', 'Slightly longer than wide', 'Soft jawline'],
+    hijabStyles: ['turkish-simple', 'side-drape', 'french-twist', 'voluminous-style'],
+    description: 'Lucky you! Oval faces suit almost any hijab style.',
+    tips: ['Experiment with different volumes', 'Try asymmetrical draping', 'Most styles will flatter you']
+  },
+  round: {
+    name: 'Round Face',
+    characteristics: ['Full cheeks', 'Width equals length', 'Soft features'],
+    hijabStyles: ['side-drape', 'french-twist', 'voluminous-style'],
+    description: 'Add height and angles to elongate your beautiful features.',
+    tips: ['Add volume at the crown', 'Avoid wide draping at cheek level', 'Try asymmetrical styles']
+  },
+  square: {
+    name: 'Square Face',
+    characteristics: ['Strong jawline', 'Wide forehead', 'Angular features'],
+    hijabStyles: ['turkish-simple', 'side-drape', 'summer-breathable'],
+    description: 'Soften angular features with flowing, curved draping.',
+    tips: ['Choose soft, flowing fabrics', 'Add curves with draping', 'Avoid tight wrapping around face']
+  },
+  heart: {
+    name: 'Heart-Shaped Face',
+    characteristics: ['Wide forehead', 'Narrow chin', 'Prominent cheekbones'],
+    hijabStyles: ['malaysian-simple', 'dupatta-style', 'winter-warm'],
+    description: 'Balance your forehead with width at the jawline.',
+    tips: ['Add volume at chin level', 'Keep forehead coverage moderate', 'Try chin-framing styles']
+  },
+  long: {
+    name: 'Long Face',
+    characteristics: ['Length greater than width', 'High forehead', 'Elongated features'],
+    hijabStyles: ['turban-wrap', 'voluminous-style', 'ninja-underscarf'],
+    description: 'Add width and minimize length for perfect balance.',
+    tips: ['Create horizontal volume', 'Avoid extra height', 'Try wide, flowing styles']
+  },
+  diamond: {
+    name: 'Diamond Face',
+    characteristics: ['Narrow forehead and chin', 'Wide cheekbones', 'Angular features'],
+    hijabStyles: ['french-twist', 'side-drape', 'summer-breathable'],
+    description: 'Highlight your cheekbones while balancing narrow areas.',
+    tips: ['Add width at forehead and chin', 'Showcase your cheekbones', 'Soft draping works well']
+  }
+};
+
+// Hijab Colors and Recommendations
+const hijabColors = {
+  // Neutral Colors
+  neutrals: {
+    name: 'Neutral Tones',
+    colors: [
+      { name: 'Classic Black', hex: '#000000', occasions: ['Formal', 'Everyday', 'Work'] },
+      { name: 'Pure White', hex: '#FFFFFF', occasions: ['Summer', 'Casual', 'Fresh looks'] },
+      { name: 'Cream', hex: '#F5F5DC', occasions: ['Elegant', 'Soft looks', 'Vintage'] },
+      { name: 'Beige', hex: '#F5F5DC', occasions: ['Natural', 'Earth tones', 'Minimal'] },
+      { name: 'Taupe', hex: '#483C32', occasions: ['Sophisticated', 'Professional', 'Autumn'] },
+      { name: 'Charcoal', hex: '#36454F', occasions: ['Modern', 'Urban', 'Chic'] },
+    ]
+  },
+  // Warm Colors
+  warm: {
+    name: 'Warm Tones',
+    colors: [
+      { name: 'Rust Orange', hex: '#B7410E', occasions: ['Autumn', 'Earthy', 'Bohemian'] },
+      { name: 'Terracotta', hex: '#E2725B', occasions: ['Warm weather', 'Natural', 'Casual'] },
+      { name: 'Golden Yellow', hex: '#FFD700', occasions: ['Sunny days', 'Cheerful', 'Festive'] },
+      { name: 'Burnt Sienna', hex: '#E97451', occasions: ['Fall season', 'Cozy', 'Rich looks'] },
+      { name: 'Coral', hex: '#FF7F50', occasions: ['Spring', 'Feminine', 'Soft'] },
+    ]
+  },
+  // Cool Colors
+  cool: {
+    name: 'Cool Tones',
+    colors: [
+      { name: 'Navy Blue', hex: '#000080', occasions: ['Professional', 'Classic', 'Timeless'] },
+      { name: 'Emerald Green', hex: '#50C878', occasions: ['Elegant', 'Fresh', 'Natural'] },
+      { name: 'Royal Purple', hex: '#7851A9', occasions: ['Regal', 'Special occasions', 'Luxurious'] },
+      { name: 'Steel Blue', hex: '#4682B4', occasions: ['Cool weather', 'Calming', 'Professional'] },
+      { name: 'Lavender', hex: '#E6E6FA', occasions: ['Soft', 'Romantic', 'Spring'] },
+    ]
+  },
+  // Bold Colors
+  bold: {
+    name: 'Bold & Vibrant',
+    colors: [
+      { name: 'Fuchsia Pink', hex: '#FF1493', occasions: ['Statement', 'Fun', 'Youthful'] },
+      { name: 'Electric Blue', hex: '#7DF9FF', occasions: ['Modern', 'Eye-catching', 'Summer'] },
+      { name: 'Bright Red', hex: '#FF0000', occasions: ['Confident', 'Bold', 'Special events'] },
+      { name: 'Vibrant Green', hex: '#00FF00', occasions: ['Fresh', 'Energetic', 'Nature-inspired'] },
+      { name: 'Sunset Orange', hex: '#FF8C00', occasions: ['Warm', 'Energizing', 'Creative'] },
+    ]
+  }
+};
+
+// Affiliate Shopping Links
+const affiliateStores = {
+  hijab: [
+    { 
+      name: 'Hijab House', 
+      description: 'Premium hijab collection with worldwide shipping',
+      website: 'https://hijabhouse.com',
+      affiliate: '?ref=visibee',
+      logo: '🧕',
+      speciality: 'Luxury scarves'
+    },
+    { 
+      name: 'Modanisa', 
+      description: 'Turkish modest fashion leader',
+      website: 'https://modanisa.com',
+      affiliate: '?affiliate=visibee',
+      logo: '👗',
+      speciality: 'Complete modest outfits'
+    },
+    { 
+      name: 'Haute Hijab', 
+      description: 'Modern hijab styles and accessories',
+      website: 'https://hautehijab.com',
+      affiliate: '?partner=visibee',
+      logo: '✨',
+      speciality: 'Contemporary designs'
+    },
+  ],
+  shoes: [
+    { 
+      name: 'Annah Hariri', 
+      description: 'Modest fashion shoes and accessories',
+      website: 'https://annahhariri.com',
+      affiliate: '?ref=visibee',
+      logo: '👠',
+      speciality: 'Modest footwear'
+    },
+    { 
+      name: 'Nike Hijab Collection', 
+      description: 'Sports hijabs and athletic wear',
+      website: 'https://nike.com/hijab',
+      affiliate: '?source=visibee',
+      logo: '👟',
+      speciality: 'Athletic wear'
+    },
+  ],
+  complete: [
+    { 
+      name: 'SHEIN Modest', 
+      description: 'Affordable complete modest outfits',
+      website: 'https://shein.com/modest',
+      affiliate: '?ref=visibee123',
+      logo: '🛍️',
+      speciality: 'Budget-friendly'
+    },
+    { 
+      name: 'Uniqlo Modest Wear', 
+      description: 'Quality basics for modest fashion',
+      website: 'https://uniqlo.com/modest',
+      affiliate: '?partner=visibee',
+      logo: '👕',
+      speciality: 'Quality basics'
+    },
+  ]
+};
+
+// Enhanced hijab styles with face shape compatibility
 const hijabStyles = {
-  // Middle Eastern Styles
   'turkish-simple': {
     name: 'Turkish Simple',
     region: 'Middle East',
     difficulty: 'Beginner',
     time: '2-3 minutes',
     description: 'Clean, modern style popular in Turkey with minimal pins and a sleek finish.',
+    faceShapes: ['oval', 'square'],
+    colorRecommendations: ['neutrals', 'cool'],
     instructions: [
       'Place hijab on head with equal lengths on both sides',
       'Wrap one side around face and under chin',
@@ -31,6 +213,8 @@ const hijabStyles = {
     ],
     occasions: ['Daily wear', 'Work', 'University'],
     fabrics: ['Cotton', 'Chiffon', 'Jersey'],
+    shoeStyle: ['Loafers', 'Ballet flats', 'Ankle boots'],
+    wardrobeMatch: ['Blazers', 'Button-down shirts', 'Trousers'],
     tutorials: [
       { platform: 'YouTube', title: 'Turkish Hijab Tutorial - Simple & Elegant', url: 'https://youtube.com/watch?v=example1' },
       { platform: 'Instagram', title: '@hijabfashion Turkish Style', url: 'https://instagram.com/p/example1' }
@@ -38,10 +222,12 @@ const hijabStyles = {
   },
   'side-drape': {
     name: 'Side Drape',
-    region: 'Middle East', 
+    region: 'Middle East',
     difficulty: 'Intermediate',
     time: '5-7 minutes',
     description: 'Elegant style with fabric draped gracefully over one shoulder.',
+    faceShapes: ['oval', 'round', 'square', 'diamond'],
+    colorRecommendations: ['cool', 'bold'],
     instructions: [
       'Place hijab with one side longer than the other',
       'Wrap shorter side around face',
@@ -51,81 +237,20 @@ const hijabStyles = {
     ],
     occasions: ['Formal events', 'Weddings', 'Special occasions'],
     fabrics: ['Silk', 'Chiffon', 'Satin'],
+    shoeStyle: ['Heels', 'Dress shoes', 'Formal sandals'],
+    wardrobeMatch: ['Evening gowns', 'Cocktail dresses', 'Formal suits'],
     tutorials: [
       { platform: 'YouTube', title: 'Side Drape Hijab - Party Look', url: 'https://youtube.com/watch?v=example2' }
     ]
   },
-
-  // South Asian Styles
-  'dupatta-style': {
-    name: 'Dupatta Style',
-    region: 'South Asia',
-    difficulty: 'Beginner',
-    time: '3-4 minutes', 
-    description: 'Traditional South Asian style worn like a dupatta with loose draping.',
-    instructions: [
-      'Drape hijab over head like a dupatta',
-      'Let it fall naturally over shoulders',
-      'Pin one corner to shoulder',
-      'Adjust length and coverage as needed'
-    ],
-    occasions: ['Traditional events', 'Family gatherings', 'Cultural celebrations'],
-    fabrics: ['Cotton', 'Georgette', 'Lawn'],
-    tutorials: [
-      { platform: 'YouTube', title: 'Pakistani Dupatta Style Hijab', url: 'https://youtube.com/watch?v=example3' },
-      { platform: 'TikTok', title: 'Easy Dupatta Hijab Style', url: 'https://tiktok.com/@example' }
-    ]
-  },
-
-  // African Styles
-  'turban-wrap': {
-    name: 'Turban Wrap',
-    region: 'Africa',
-    difficulty: 'Advanced',
-    time: '8-10 minutes',
-    description: 'Bold African-inspired style with intricate wrapping and height.',
-    instructions: [
-      'Start with a large square hijab',
-      'Fold into a triangle',
-      'Place on head with point at back',
-      'Wrap ends around head multiple times',
-      'Tuck and adjust for height and style'
-    ],
-    occasions: ['Cultural events', 'Festivals', 'Special occasions'],
-    fabrics: ['Ankara', 'Wax print', 'Heavy cotton'],
-    tutorials: [
-      { platform: 'YouTube', title: 'African Turban Hijab Wrap Tutorial', url: 'https://youtube.com/watch?v=example4' }
-    ]
-  },
-
-  // Southeast Asian Styles
-  'malaysian-simple': {
-    name: 'Malaysian Simple',
-    region: 'Southeast Asia',
-    difficulty: 'Beginner',
-    time: '2-3 minutes',
-    description: 'Popular Malaysian style that is practical and modest.',
-    instructions: [
-      'Place hijab evenly on head',
-      'Cross ends under chin',
-      'Bring both ends to back',
-      'Pin securely at back of head',
-      'Ensure full coverage of chest'
-    ],
-    occasions: ['Daily wear', 'School', 'Work'],
-    fabrics: ['Cotton', 'Polyester blend', 'Jersey'],
-    tutorials: [
-      { platform: 'YouTube', title: 'Malaysian Hijab Style Tutorial', url: 'https://youtube.com/watch?v=example5' }
-    ]
-  },
-
-  // European/Western Styles  
   'french-twist': {
     name: 'French Twist',
     region: 'Europe',
-    difficulty: 'Intermediate', 
+    difficulty: 'Intermediate',
     time: '4-6 minutes',
     description: 'Sophisticated European style with a twisted detail.',
+    faceShapes: ['heart', 'diamond', 'oval'],
+    colorRecommendations: ['neutrals', 'warm'],
     instructions: [
       'Place hijab on head with one side longer',
       'Twist the longer side loosely',
@@ -135,38 +260,20 @@ const hijabStyles = {
     ],
     occasions: ['Professional meetings', 'Formal events', 'Date nights'],
     fabrics: ['Silk', 'Satin', 'Crepe'],
+    shoeStyle: ['Pumps', 'Block heels', 'Oxford shoes'],
+    wardrobeMatch: ['Blazers', 'Shift dresses', 'Elegant blouses'],
     tutorials: [
       { platform: 'YouTube', title: 'French Twist Hijab - Elegant Style', url: 'https://youtube.com/watch?v=example6' }
     ]
   },
-
-  // Contemporary/Modern Styles
-  'ninja-underscarf': {
-    name: 'Ninja Underscarf Style',
-    region: 'Contemporary',
-    difficulty: 'Beginner',
-    time: '1-2 minutes',
-    description: 'Modern style using an underscarf for full coverage and comfort.',
-    instructions: [
-      'Wear ninja underscarf as base',
-      'Place hijab over underscarf',
-      'Adjust hijab for desired coverage',
-      'No pins needed with this method'
-    ],
-    occasions: ['Sports', 'Active wear', 'Casual outings'],
-    fabrics: ['Jersey', 'Modal', 'Bamboo blend'],
-    tutorials: [
-      { platform: 'YouTube', title: 'Ninja Underscarf Hijab Tutorial', url: 'https://youtube.com/watch?v=example7' },
-      { platform: 'Instagram', title: 'Quick Ninja Style', url: 'https://instagram.com/p/example2' }
-    ]
-  },
-
   'voluminous-style': {
     name: 'Voluminous Style',
     region: 'Contemporary',
     difficulty: 'Advanced',
     time: '10-15 minutes',
     description: 'Trendy style with added volume using techniques like teasing and layering.',
+    faceShapes: ['round', 'long', 'oval'],
+    colorRecommendations: ['bold', 'neutrals'],
     instructions: [
       'Start with a volumizing cap or underscarf',
       'Tease the hijab fabric for volume',
@@ -176,51 +283,13 @@ const hijabStyles = {
     ],
     occasions: ['Weddings', 'Fashion events', 'Photography'],
     fabrics: ['Chiffon', 'Organza', 'Tulle'],
+    shoeStyle: ['Statement heels', 'Designer flats', 'Embellished sandals'],
+    wardrobeMatch: ['Formal gowns', 'Designer outfits', 'Statement pieces'],
     tutorials: [
       { platform: 'YouTube', title: 'Voluminous Hijab Tutorial - Wedding Style', url: 'https://youtube.com/watch?v=example8' }
     ]
   },
-
-  // Seasonal Styles
-  'summer-breathable': {
-    name: 'Summer Breathable',
-    region: 'Universal',
-    difficulty: 'Beginner',
-    time: '2-3 minutes',
-    description: 'Light, airy style perfect for hot weather with maximum breathability.',
-    instructions: [
-      'Use lightweight, breathable fabric',
-      'Create loose draping for air circulation',
-      'Avoid tight wrapping around neck',
-      'Use minimal pins to reduce heat',
-      'Focus on coverage while staying cool'
-    ],
-    occasions: ['Summer outings', 'Beach visits', 'Hot climate daily wear'],
-    fabrics: ['Cotton voile', 'Linen', 'Bamboo'],
-    tutorials: [
-      { platform: 'YouTube', title: 'Summer Hijab Styles - Stay Cool & Covered', url: 'https://youtube.com/watch?v=example9' }
-    ]
-  },
-
-  'winter-warm': {
-    name: 'Winter Warm',
-    region: 'Universal', 
-    difficulty: 'Intermediate',
-    time: '5-7 minutes',
-    description: 'Cozy layered style for cold weather with extra warmth and coverage.',
-    instructions: [
-      'Layer with a warm underscarf',
-      'Use thicker fabric hijab',
-      'Wrap snugly around neck for warmth',
-      'Ensure coverage of neck area',
-      'Add a hijab-friendly winter coat'
-    ],
-    occasions: ['Winter daily wear', 'Outdoor activities', 'Cold climate'],
-    fabrics: ['Wool blend', 'Cashmere', 'Thick cotton'],
-    tutorials: [
-      { platform: 'YouTube', title: 'Winter Hijab Layering Tutorial', url: 'https://youtube.com/watch?v=example10' }
-    ]
-  }
+  // Add more styles here...
 };
 
 export default function HijabStylesScreen() {
