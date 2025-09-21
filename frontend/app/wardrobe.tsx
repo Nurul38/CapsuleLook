@@ -21,6 +21,7 @@ interface ClothingItem {
   brand?: string;
   color?: string;
   function?: string;
+  category?: string;
   purchase_date?: string;
   purchase_link?: string;
   image_base64?: string;
