@@ -28,7 +28,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Visibee</Text>
-          <Text style={styles.subtitle}>Your ADHD-Friendly E-Wardrobe</Text>
+          <Text style={styles.subtitle}>Your Friendly E-Wardrobe</Text>
           <Text style={styles.description}>
             Never lose track of your clothes again. Visibee helps you organize, 
             discover, and style your wardrobe with AI-powered assistance.
