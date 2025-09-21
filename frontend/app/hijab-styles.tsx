@@ -179,7 +179,7 @@ const affiliateStores = {
   ]
 };
 
-// Enhanced hijab styles with face shape compatibility
+// Enhanced hijab styles with face shape compatibility and Malaysian inspiration
 const hijabStyles = {
   'turkish-simple': {
     name: 'Turkish Simple',
@@ -205,6 +205,30 @@ const hijabStyles = {
       { platform: 'Instagram', title: '@hijabfashion Turkish Style', url: 'https://instagram.com/p/example1' }
     ]
   },
+  'malaysian-simple': {
+    name: 'Malaysian Simple',
+    region: 'Southeast Asia',
+    difficulty: 'Beginner',
+    time: '3-4 minutes',
+    description: 'Classic Malaysian style perfect for humid weather, inspired by local hijabi influencers.',
+    faceShapes: ['oval', 'heart', 'long'],
+    colorRecommendations: ['neutrals', 'warm'],
+    instructions: [
+      'Place hijab with one side slightly longer',
+      'Wrap shorter side under chin and pin',
+      'Bring longer side across and tuck behind ear',
+      'Pin securely at shoulder',
+      'Adjust for comfortable coverage'
+    ],
+    occasions: ['Daily wear', 'Casual outings', 'Shopping'],
+    fabrics: ['Cotton', 'Bamboo fiber', 'Breathable jersey'],
+    shoeStyle: ['Sandals', 'Sneakers', 'Slip-ons'],
+    wardrobeMatch: ['Baju kurung', 'Casual dresses', 'Modest tops'],
+    tutorials: [
+      { platform: 'TikTok', title: '@malaysian_hijabi Simple Daily Style', url: 'https://tiktok.com/@example' },
+      { platform: 'Instagram', title: 'Malaysian Hijab Tutorial', url: 'https://instagram.com/p/example2' }
+    ]
+  },
   'side-drape': {
     name: 'Side Drape',
     region: 'Middle East',
@@ -226,6 +250,30 @@ const hijabStyles = {
     wardrobeMatch: ['Evening gowns', 'Cocktail dresses', 'Formal suits'],
     tutorials: [
       { platform: 'YouTube', title: 'Side Drape Hijab - Party Look', url: 'https://youtube.com/watch?v=example2' }
+    ]
+  },
+  'malaysian-twist': {
+    name: 'Malaysian Modern Twist',
+    region: 'Southeast Asia',
+    difficulty: 'Intermediate',
+    time: '6-8 minutes',
+    description: 'Trendy Malaysian style seen on social media, featuring elegant twists and volume.',
+    faceShapes: ['oval', 'round', 'heart'],
+    colorRecommendations: ['bold', 'warm'],
+    instructions: [
+      'Start with hijab draped evenly',
+      'Create a loose twist on one side',
+      'Wrap around head maintaining the twist',
+      'Pin the twisted section decoratively',
+      'Arrange remaining fabric for volume'
+    ],
+    occasions: ['Social events', 'Dates', 'Photography'],
+    fabrics: ['Chiffon', 'Silk', 'Crepe'],
+    shoeStyle: ['Block heels', 'Stylish flats', 'Wedges'],
+    wardrobeMatch: ['Modern baju kurung', 'Midi dresses', 'Styled blouses'],
+    tutorials: [
+      { platform: 'TikTok', title: '@kl_hijabi Modern Twist Tutorial', url: 'https://tiktok.com/@example' },
+      { platform: 'Instagram', title: 'Malaysian Modern Hijab Style', url: 'https://instagram.com/p/example3' }
     ]
   },
   'french-twist': {
@@ -274,7 +322,53 @@ const hijabStyles = {
       { platform: 'YouTube', title: 'Voluminous Hijab Tutorial - Wedding Style', url: 'https://youtube.com/watch?v=example8' }
     ]
   },
-  // Add more styles here...
+  'malaysian-casual': {
+    name: 'Malaysian Casual Chic',
+    region: 'Southeast Asia',
+    difficulty: 'Beginner',
+    time: '2-3 minutes',
+    description: 'Effortless everyday style popular among Malaysian university students and young professionals.',
+    faceShapes: ['oval', 'round', 'square'],
+    colorRecommendations: ['neutrals', 'cool'],
+    instructions: [
+      'Place hijab loosely on head',
+      'Cross both sides under chin',
+      'Bring both sides to the back',
+      'Tie or pin at the nape',
+      'Adjust for comfort and coverage'
+    ],
+    occasions: ['University', 'Casual work', 'Daily errands'],
+    fabrics: ['Cotton', 'Modal', 'Jersey'],
+    shoeStyle: ['White sneakers', 'Canvas shoes', 'Comfortable flats'],
+    wardrobeMatch: ['Oversized shirts', 'Casual dresses', 'Denim jackets'],
+    tutorials: [
+      { platform: 'TikTok', title: '@hijab_daily Malaysian Casual Style', url: 'https://tiktok.com/@example' }
+    ]
+  },
+  'malaysian-formal': {
+    name: 'Malaysian Formal Elegance',
+    region: 'Southeast Asia',
+    difficulty: 'Advanced',
+    time: '8-12 minutes',
+    description: 'Sophisticated Malaysian style for formal occasions, inspired by traditional and modern elements.',
+    faceShapes: ['oval', 'heart', 'diamond'],
+    colorRecommendations: ['cool', 'neutrals'],
+    instructions: [
+      'Start with an underscarf for volume',
+      'Drape hijab with decorative pleats',
+      'Create asymmetrical draping',
+      'Pin with decorative hijab pins',
+      'Finish with elegant shoulder draping'
+    ],
+    occasions: ['Weddings', 'Formal dinners', 'Corporate events'],
+    fabrics: ['Silk', 'Premium chiffon', 'Satin'],
+    shoeStyle: ['Formal heels', 'Pointed toe flats', 'Elegant sandals'],
+    wardrobeMatch: ['Formal baju kurung', 'Evening dresses', 'Tailored suits'],
+    tutorials: [
+      { platform: 'Instagram', title: 'Malaysian Formal Hijab Styling', url: 'https://instagram.com/p/example4' },
+      { platform: 'YouTube', title: 'Elegant Malaysian Hijab for Special Events', url: 'https://youtube.com/watch?v=example9' }
+    ]
+  },
 };
 
 export default function HijabStylesScreen() {
