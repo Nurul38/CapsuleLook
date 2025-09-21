@@ -37,6 +37,7 @@ class ClothingItem(BaseModel):
     brand: Optional[str] = None
     color: Optional[str] = None
     function: Optional[str] = None  # casual, formal, work, gym, etc.
+    category: Optional[str] = None  # Winter, Costume, Wedding, Events, etc.
     purchase_date: Optional[datetime] = None
     purchase_link: Optional[str] = None
     image_base64: Optional[str] = None
@@ -50,6 +51,7 @@ class ClothingItemCreate(BaseModel):
     brand: Optional[str] = None
     color: Optional[str] = None
     function: Optional[str] = None
+    category: Optional[str] = None
     purchase_date: Optional[datetime] = None
     purchase_link: Optional[str] = None
     image_base64: Optional[str] = None
@@ -60,6 +62,7 @@ class ClothingItemUpdate(BaseModel):
     brand: Optional[str] = None
     color: Optional[str] = None
     function: Optional[str] = None
+    category: Optional[str] = None
     purchase_date: Optional[datetime] = None
     purchase_link: Optional[str] = None
     image_base64: Optional[str] = None
