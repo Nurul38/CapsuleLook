@@ -464,6 +464,9 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 40,
     zIndex: 1,
+    backgroundColor: '#ec4899', // Fuchsia pink background
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   logoContainer: {
     alignItems: 'center',
