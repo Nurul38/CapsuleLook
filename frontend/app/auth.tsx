@@ -385,7 +385,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#FFFAF0', // Creamy White
   },
   scrollView: {
     flex: 1,
@@ -405,124 +405,97 @@ const styles = StyleSheet.create({
   circle: {
     position: 'absolute',
     borderRadius: 1000,
-    opacity: 0.15,
+    opacity: 0.12,
   },
   circle1: {
     width: 280,
     height: 280,
-    backgroundColor: '#ec4899', // Keep fuchsia as accent
+    backgroundColor: '#E6E6FA', // Soft Lavender
     top: -140,
     right: -80,
   },
   circle2: {
     width: 180,
     height: 180,
-    backgroundColor: '#a78bfa', // Soft purple
+    backgroundColor: '#FFDAB9', // Miffed Pink
     top: 60,
     left: -60,
   },
   circle3: {
     width: 120,
     height: 120,
-    backgroundColor: '#38bdf8', // Soft blue harmony
+    backgroundColor: '#B76E79', // Rose Gold
     top: 180,
     right: 40,
   },
-  dressIcon: {
+  wardrobeIllustration: {
     position: 'absolute',
-    top: 100,
-    right: 50,
-    width: 80,
-    height: 100,
-    opacity: 0.2,
+    top: 120,
+    right: 30,
+    width: 100,
+    height: 120,
+    opacity: 0.15,
+    backgroundColor: '#E6E6FA',
+    borderRadius: 12,
+    // Simple wardrobe silhouette
+    borderWidth: 2,
+    borderColor: '#B76E79',
   },
-  dressPosition: {
-    backgroundColor: '#60a5fa', // Cool blue for dress
-    borderRadius: 40,
-    // Create a simple dress shape using border radius and positioning
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-  },
-  header: {
+  heroSection: {
+    background: 'linear-gradient(135deg, #FFFAF0 0%, #E6E6FA 100%)',
     paddingHorizontal: 32,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 40,
     zIndex: 1,
-    backgroundColor: '#7dd3fc', // Soft sky blue background for better readability
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: 32,
   },
   logo: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 70,
+    height: 70,
+    borderRadius: 20,
+    backgroundColor: '#FFFAF0', // Creamy White
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#B76E79', // Rose Gold border
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
     elevation: 8,
   },
-  sparkles: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-    gap: 8,
-  },
-  sparkleText: {
-    fontSize: 18,
-    opacity: 0.8,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#1f2937',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  sparkles: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-    gap: 8,
-  },
-  sparkleText: {
-    fontSize: 18,
-    opacity: 0.8,
-  },
-  welcomeText: {
-    fontSize: 24,
+  heroTitle: {
+    fontSize: 28,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#B76E79', // Rose Gold
+    textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 34,
+    letterSpacing: -0.5,
+    // Would use Playfair Display in production
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: '#4B0082', // Deep Plum
     textAlign: 'center',
     marginBottom: 8,
+    lineHeight: 22,
+    // Would use Montserrat in production
   },
-  description: {
-    fontSize: 16,
-    color: '#6b7280',
+  tagline: {
+    fontSize: 14,
+    color: '#B76E79', // Rose Gold
     textAlign: 'center',
-    lineHeight: 24,
+    fontStyle: 'italic',
+    fontWeight: '500',
   },
   formContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFAF0', // Creamy White
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 32,
@@ -530,25 +503,25 @@ const styles = StyleSheet.create({
     marginTop: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
     elevation: 8,
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
+    backgroundColor: '#E6E6FA', // Soft Lavender
+    borderRadius: 16,
     padding: 4,
     marginBottom: 32,
   },
   tab: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: 'center',
   },
   tabActive: {
-    backgroundColor: 'white',
+    backgroundColor: '#B76E79', // Rose Gold
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -558,82 +531,90 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6b7280',
+    color: '#4B0082', // Deep Plum
   },
   tabTextActive: {
-    color: '#1f2937',
+    color: '#FFFAF0', // Creamy White
   },
   form: {
     marginBottom: 32,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 22,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: '#4B0082', // Deep Plum
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    backgroundColor: '#f9fafb',
+    borderWidth: 1.5,
+    borderColor: '#E6E6FA', // Soft Lavender
+    borderRadius: 14,
+    backgroundColor: '#FFFAF0', // Creamy White
   },
   inputIcon: {
     marginLeft: 16,
     marginRight: 12,
+    color: '#B76E79', // Rose Gold
   },
   input: {
     flex: 1,
     paddingVertical: 16,
     paddingRight: 16,
     fontSize: 16,
-    color: '#1f2937',
+    color: '#4B0082', // Deep Plum
   },
   inputError: {
-    borderColor: '#ef4444',
+    borderColor: '#B76E79', // Use Rose Gold instead of red for softer feel
   },
   eyeIcon: {
     padding: 16,
   },
   errorText: {
     fontSize: 12,
-    color: '#ef4444',
-    marginTop: 4,
+    color: '#B76E79', // Rose Gold instead of harsh red
+    marginTop: 6,
   },
   submitButton: {
-    backgroundColor: '#6366f1',
-    paddingVertical: 16,
-    borderRadius: 12,
+    backgroundColor: '#B76E79', // Rose Gold
+    paddingVertical: 18,
+    borderRadius: 14,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
   submitButtonDisabled: {
-    backgroundColor: '#9ca3af',
+    backgroundColor: '#FFDAB9', // Miffed Pink when disabled
+    opacity: 0.6,
   },
   submitButtonText: {
-    color: 'white',
+    color: '#FFFAF0', // Creamy White
     fontSize: 16,
     fontWeight: '700',
+    letterSpacing: 0.5,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 28,
   },
   footerText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#4B0082', // Deep Plum
   },
   footerLink: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6366f1',
+    color: '#B76E79', // Rose Gold
   },
   skipButton: {
     alignItems: 'center',
@@ -641,7 +622,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: '#B76E79', // Rose Gold
     fontWeight: '500',
   },
 });
