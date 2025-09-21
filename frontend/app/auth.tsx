@@ -496,6 +496,17 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
   },
+  sparkles: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 8,
+  },
+  sparkleText: {
+    fontSize: 18,
+    opacity: 0.8,
+  },
   welcomeText: {
     fontSize: 24,
     fontWeight: '700',
