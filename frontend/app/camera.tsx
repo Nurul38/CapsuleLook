@@ -731,7 +731,8 @@ export default function CameraEnhancedScreen() {
                   setShowBrandDropdown(false);
                   setBrandSearch('');
                 },
-                'Brand'
+                'Brand',
+                true // This is the brand dropdown, so enable ethics checking
               )}
             </View>
           )}
