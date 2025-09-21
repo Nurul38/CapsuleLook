@@ -1463,9 +1463,33 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },
+  dropdownItemContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   dropdownItemText: {
     fontSize: 14,
     color: '#374151',
+    flex: 1,
+  },
+  ethicalDropdownItem: {
+    backgroundColor: '#f0fdf4',
+    borderLeftWidth: 3,
+    borderLeftColor: '#10b981',
+  },
+  problematicDropdownItem: {
+    backgroundColor: '#fef2f2',
+    borderLeftWidth: 3,
+    borderLeftColor: '#ef4444',
+  },
+  ethicalText: {
+    color: '#065f46',
+    fontWeight: '500',
+  },
+  problematicText: {
+    color: '#991b1b',
+    fontWeight: '500',
   },
   customOption: {
     flexDirection: 'row',
