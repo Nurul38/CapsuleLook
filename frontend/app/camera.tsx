@@ -415,13 +415,69 @@ export default function CameraEnhancedScreen() {
     setValue('name', autoName);
   };
 
-  const filteredColors = colorOptions.filter(color =>
-    color.toLowerCase().includes(colorSearch.toLowerCase())
-  );
+  // Check brand ethics function
+  const checkBrandEthics = (brand: string) => {
+    const lowerBrand = brand.toLowerCase().trim();
+    
+    // Check if it's a problematic brand
+    if (problematicBrands.some(b => lowerBrand.includes(b.toLowerCase()))) {
+      return 'problematic';
+    }
+    
+    // Check if it's an ethical brand
+    if (ethicalBrands.some(b => lowerBrand.includes(b.toLowerCase()))) {
+      return 'ethical';
+    }
+    
+    return 'neutral';
+  };
 
-  const filteredBrands = brandOptions.filter(brand =>
-    brand.toLowerCase().includes(brandSearch.toLowerCase())
-  );
+  // Handle brand selection with ethics check
+  const handleBrandSelection = (selectedBrand: string, skipWarning: boolean = false) => {
+    const ethicsStatus = checkBrandEthics(selectedBrand);
+    
+    if (ethicsStatus === 'problematic' && !skipWarning) {
+      Alert.alert(
+        '⚠️ Ethical Concern',
+        `${selectedBrand} is on the BDS boycott list due to alleged support of genocide and human rights violations in Palestine.\n\nWould you still like to add this brand to your wardrobe?`,
+        [
+          {
+            text: 'Choose Different Brand',
+            style: 'cancel'
+          },
+          {
+            text: 'Learn More',
+            onPress: () => {
+              Alert.alert(
+                'Ethical Fashion Info',
+                'Visibee promotes ethical fashion choices. This brand has been flagged by the BDS movement and "No Thanks" app for potential human rights concerns. You can still add it, or choose from our ethical alternatives.',
+                [
+                  { text: 'Choose Alternative', style: 'cancel' },
+                  { text: 'Add Anyway', onPress: () => handleBrandSelection(selectedBrand, true) }
+                ]
+              );
+            }
+          },
+          {
+            text: 'Add Anyway',
+            style: 'destructive',
+            onPress: () => handleBrandSelection(selectedBrand, true)
+          }
+        ]
+      );
+      return;
+    }
+    
+    // If ethical or user confirmed, proceed with selection
+    setValue('brand', selectedBrand);
+    setShowBrandDropdown(false);
+    setBrandSearch('');
+    
+    if (ethicsStatus === 'ethical') {
+      // Optional: Show positive feedback for ethical choice
+      console.log(`✅ Great choice! ${selectedBrand} is an ethical brand.`);
+    }
+  };
 
   const renderDropdown = (
     items: string[],
