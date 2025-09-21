@@ -434,6 +434,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1f2937',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  viewModeButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   addButton: {
     width: 40,
     height: 40,
@@ -491,6 +502,20 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: 'white',
   },
+  // Grid Mode Indicator
+  gridModeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    backgroundColor: '#f0f4ff',
+    gap: 8,
+  },
+  gridModeText: {
+    fontSize: 12,
+    color: '#6366f1',
+    fontWeight: '500',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -532,6 +557,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  // List View Styles
   itemsList: {
     flex: 1,
   },
@@ -615,5 +641,90 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 8,
+  },
+  // Grid View Styles
+  gridContainer: {
+    flex: 1,
+  },
+  gridContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    gap: 10,
+  },
+  gridItem: {
+    width: itemSize,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
+    position: 'relative',
+  },
+  gridItemImage: {
+    width: itemSize,
+    height: itemSize,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  gridPlaceholderImage: {
+    width: itemSize,
+    height: itemSize,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    backgroundColor: '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gridItemInfo: {
+    padding: 8,
+  },
+  gridItemName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 2,
+  },
+  gridItemBrand: {
+    fontSize: 10,
+    color: '#6b7280',
+  },
+  gridDeleteButton: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  gridFooter: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  gridFooterText: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
   },
 });
