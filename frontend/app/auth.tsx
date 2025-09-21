@@ -243,6 +243,7 @@ export default function AuthScreen() {
                   <Controller
                     control={signupForm.control}
                     name="username"
+                    defaultValue=""
                     render={({ field: { onChange, value } }) => (
                       <View style={styles.inputContainer}>
                         <Ionicons name="person" size={20} color="#9ca3af" style={styles.inputIcon} />
