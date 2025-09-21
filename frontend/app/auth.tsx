@@ -472,28 +472,17 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   hangerIcon: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
+    gap: 4,
   },
-  hangerBar: {
-    transform: [{ rotate: '0deg' }],
-  },
-  hangerHook: {
-    position: 'absolute',
-    top: -8,
-    width: 2,
-    height: 12,
-    backgroundColor: '#B76E79',
-    borderRadius: 1,
-  },
-  beeWing: {
-    position: 'absolute',
-    top: -4,
-    right: -12,
+  hangerText: {
+    fontSize: 24,
+    color: '#B76E79',
   },
   beeEmoji: {
-    fontSize: 14,
+    fontSize: 16,
   },
   heroTitle: {
     fontSize: 32,
