@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -7,15 +7,60 @@ import {
   TouchableOpacity, 
   SafeAreaView,
   StatusBar,
-  Platform
+  Platform,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [userSession, setUserSession] = useState(null);
+
+  useEffect(() => {
+    checkAuthentication();
+  }, []);
+
+  const checkAuthentication = async () => {
+    try {
+      const session = await AsyncStorage.getItem('userSession');
+      if (!session) {
+        // No session found, redirect to auth
+        router.replace('/auth');
+        return;
+      }
+      
+      const parsedSession = JSON.parse(session);
+      setUserSession(parsedSession);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Auth check error:', error);
+      router.replace('/auth');
+    }
+  };
+
   const navigateTo = (route: string) => {
     router.push(route as any);
   };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userSession');
+      router.replace('/auth');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6366f1" />
+        <Text style={styles.loadingText}>Loading Visibee...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -27,8 +72,15 @@ export default function HomeScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Visibee</Text>
-          <Text style={styles.subtitle}>Your Friendly E-Wardrobe</Text>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.title}>Visibee</Text>
+              <Text style={styles.subtitle}>Your Friendly E-Wardrobe</Text>
+            </View>
+            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+              <Ionicons name="log-out" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.description}>
             Never lose track of your clothes again. Visibee helps you organize, 
             discover, and style your wardrobe with AI-powered assistance.
@@ -187,6 +239,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8fafc',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
   scrollView: {
     flex: 1,
   },
@@ -195,6 +259,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 32,
     paddingTop: Platform.OS === 'ios' ? 12 : 32,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  logoutButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   title: {
     fontSize: 32,
