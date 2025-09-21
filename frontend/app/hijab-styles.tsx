@@ -1006,6 +1006,315 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1f2937',
   },
+  // Tab Navigation Styles
+  tabNavigation: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#ec4899',
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6b7280',
+    marginTop: 4,
+  },
+  activeTabText: {
+    color: '#ec4899',
+    fontWeight: '600',
+  },
+  // Tab Content Styles
+  tabContent: {
+    flex: 1,
+  },
+  tabSection: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+  },
+  tabTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  tabDescription: {
+    fontSize: 16,
+    color: '#6b7280',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  // Face Shape Analysis Styles
+  analysisSection: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  analysisHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  analysisHeaderText: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  analysisTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  analysisSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  uploadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fdf2f8',
+    borderWidth: 2,
+    borderColor: '#ec4899',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  uploadButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#ec4899',
+    marginLeft: 8,
+  },
+  uploadButtonTextDisabled: {
+    color: '#9ca3af',
+  },
+  uploadedImageContainer: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  uploadedImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 16,
+  },
+  analysisResult: {
+    backgroundColor: '#f0fdf4',
+    padding: 16,
+    borderRadius: 12,
+    width: '100%',
+  },
+  resultTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#166534',
+    marginBottom: 8,
+  },
+  resultDescription: {
+    fontSize: 14,
+    color: '#15803d',
+    lineHeight: 20,
+  },
+  faceShapeGrid: {
+    gap: 12,
+  },
+  faceShapeCard: {
+    backgroundColor: '#f9fafb',
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    padding: 16,
+    position: 'relative',
+  },
+  faceShapeCardSelected: {
+    borderColor: '#ec4899',
+    backgroundColor: '#fdf2f8',
+  },
+  faceShapeName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  faceShapeCharacteristics: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+  },
+  selectedIndicator: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+  },
+  recommendationsSection: {
+    backgroundColor: '#fef3c7',
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+  recommendationsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#92400e',
+    marginBottom: 8,
+  },
+  recommendationsDescription: {
+    fontSize: 14,
+    color: '#b45309',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  tipsList: {
+    gap: 8,
+  },
+  tip: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  tipText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#b45309',
+    lineHeight: 20,
+  },
+  // Colors Tab Styles
+  colorSection: {
+    marginBottom: 32,
+  },
+  colorSectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 16,
+  },
+  colorGrid: {
+    gap: 12,
+  },
+  colorCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  colorSwatch: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 16,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+  },
+  colorInfo: {
+    flex: 1,
+  },
+  colorName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  occasionTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  // Shopping Tab Styles
+  shoppingSection: {
+    marginBottom: 32,
+  },
+  shoppingSectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 16,
+  },
+  storeGrid: {
+    gap: 12,
+  },
+  storeCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  storeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  storeLogo: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  storeInfo: {
+    flex: 1,
+  },
+  storeName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 2,
+  },
+  storeSpeciality: {
+    fontSize: 12,
+    color: '#ec4899',
+    fontWeight: '500',
+  },
+  storeDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+  },
+  futureSection: {
+    alignItems: 'center',
+    backgroundColor: '#fdf2f8',
+    padding: 32,
+    borderRadius: 16,
+    marginTop: 24,
+  },
+  futureSectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#ec4899',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  futureSectionDescription: {
+    fontSize: 14,
+    color: '#be185d',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  // Styles Tab (existing styles)
   searchContainer: {
     paddingHorizontal: 20,
     paddingVertical: 16,
