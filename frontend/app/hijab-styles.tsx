@@ -553,110 +553,430 @@ export default function HijabStylesScreen() {
         <View style={styles.backButton} />
       </View>
 
-      {/* Search */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search hijab styles..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholderTextColor="#9ca3af"
+      {/* Tab Navigation */}
+      <View style={styles.tabNavigation}>
+        <TouchableOpacity
+          style={[styles.tab, currentTab === 'styles' && styles.activeTab]}
+          onPress={() => setCurrentTab('styles')}
+        >
+          <Ionicons 
+            name="flower" 
+            size={20} 
+            color={currentTab === 'styles' ? '#ec4899' : '#6b7280'} 
           />
-          {searchQuery ? (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close" size={20} color="#6b7280" />
-            </TouchableOpacity>
-          ) : null}
-        </View>
+          <Text style={[styles.tabText, currentTab === 'styles' && styles.activeTabText]}>
+            Styles
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, currentTab === 'faceShape' && styles.activeTab]}
+          onPress={() => setCurrentTab('faceShape')}
+        >
+          <Ionicons 
+            name="person" 
+            size={20} 
+            color={currentTab === 'faceShape' ? '#ec4899' : '#6b7280'} 
+          />
+          <Text style={[styles.tabText, currentTab === 'faceShape' && styles.activeTabText]}>
+            Face Shape
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, currentTab === 'colors' && styles.activeTab]}
+          onPress={() => setCurrentTab('colors')}
+        >
+          <Ionicons 
+            name="color-palette" 
+            size={20} 
+            color={currentTab === 'colors' ? '#ec4899' : '#6b7280'} 
+          />
+          <Text style={[styles.tabText, currentTab === 'colors' && styles.activeTabText]}>
+            Colors
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, currentTab === 'shopping' && styles.activeTab]}
+          onPress={() => setCurrentTab('shopping')}
+        >
+          <Ionicons 
+            name="bag" 
+            size={20} 
+            color={currentTab === 'shopping' ? '#ec4899' : '#6b7280'} 
+          />
+          <Text style={[styles.tabText, currentTab === 'shopping' && styles.activeTabText]}>
+            Shopping
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Filters */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        style={styles.filtersContainer}
-        contentContainerStyle={styles.filtersContent}
-      >
-        <View style={styles.filterGroup}>
-          <Text style={styles.filterLabel}>Region:</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {regions.map((region) => (
-              <TouchableOpacity
-                key={region}
-                style={[
-                  styles.filterButton,
-                  selectedRegion === region && styles.filterButtonActive,
-                ]}
-                onPress={() => setSelectedRegion(region)}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    selectedRegion === region && styles.filterTextActive,
-                  ]}
-                >
-                  {region}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={styles.filterGroup}>
-          <Text style={styles.filterLabel}>Difficulty:</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {difficulties.map((difficulty) => (
-              <TouchableOpacity
-                key={difficulty}
-                style={[
-                  styles.filterButton,
-                  selectedDifficulty === difficulty && styles.filterButtonActive,
-                ]}
-                onPress={() => setSelectedDifficulty(difficulty)}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    selectedDifficulty === difficulty && styles.filterTextActive,
-                  ]}
-                >
-                  {difficulty}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      </ScrollView>
-
-      {/* Results */}
-      <ScrollView 
-        style={styles.resultsContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.resultsHeader}>
-          <Text style={styles.resultsCount}>
-            {filteredStyles.length} style{filteredStyles.length !== 1 ? 's' : ''} found
-          </Text>
-        </View>
-
-        {filteredStyles.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="flower-outline" size={64} color="#d1d5db" />
-            <Text style={styles.emptyTitle}>No styles found</Text>
-            <Text style={styles.emptyDescription}>
-              Try adjusting your search or filters
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.stylesList}>
-            {filteredStyles.map(([key, style]) => renderStyleCard(key, style))}
-          </View>
-        )}
-      </ScrollView>
+      {/* Content based on active tab */}
+      {currentTab === 'styles' && renderStylesTab()}
+      {currentTab === 'faceShape' && renderFaceShapeTab()}
+      {currentTab === 'colors' && renderColorsTab()}
+      {currentTab === 'shopping' && renderShoppingTab()}
     </SafeAreaView>
   );
+
+  // Styles Tab Content
+  function renderStylesTab() {
+    return (
+      <>
+        {/* Search */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search hijab styles..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#9ca3af"
+            />
+            {searchQuery ? (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close" size={20} color="#6b7280" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+
+        {/* Filters */}
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.filtersContainer}
+          contentContainerStyle={styles.filtersContent}
+        >
+          <View style={styles.filterGroup}>
+            <Text style={styles.filterLabel}>Region:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {regions.map((region) => (
+                <TouchableOpacity
+                  key={region}
+                  style={[
+                    styles.filterButton,
+                    selectedRegion === region && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setSelectedRegion(region)}
+                >
+                  <Text
+                    style={[
+                      styles.filterText,
+                      selectedRegion === region && styles.filterTextActive,
+                    ]}
+                  >
+                    {region}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.filterGroup}>
+            <Text style={styles.filterLabel}>Difficulty:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {difficulties.map((difficulty) => (
+                <TouchableOpacity
+                  key={difficulty}
+                  style={[
+                    styles.filterButton,
+                    selectedDifficulty === difficulty && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setSelectedDifficulty(difficulty)}
+                >
+                  <Text
+                    style={[
+                      styles.filterText,
+                      selectedDifficulty === difficulty && styles.filterTextActive,
+                    ]}
+                  >
+                    {difficulty}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </ScrollView>
+
+        {/* Results */}
+        <ScrollView 
+          style={styles.resultsContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.resultsHeader}>
+            <Text style={styles.resultsCount}>
+              {filteredStyles.length} style{filteredStyles.length !== 1 ? 's' : ''} found
+            </Text>
+          </View>
+
+          {filteredStyles.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="flower-outline" size={64} color="#d1d5db" />
+              <Text style={styles.emptyTitle}>No styles found</Text>
+              <Text style={styles.emptyDescription}>
+                Try adjusting your search or filters
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.stylesList}>
+              {filteredStyles.map(([key, style]) => renderStyleCard(key, style))}
+            </View>
+          )}
+        </ScrollView>
+      </>
+    );
+  }
+
+  // Face Shape Analysis Tab
+  function renderFaceShapeTab() {
+    return (
+      <ScrollView style={styles.tabContent}>
+        <View style={styles.tabSection}>
+          <Text style={styles.tabTitle}>Face Shape Analysis</Text>
+          <Text style={styles.tabDescription}>
+            Discover your face shape to find the perfect hijab styles for you!
+          </Text>
+
+          {/* Photo Analysis */}
+          <View style={styles.analysisSection}>
+            <View style={styles.analysisHeader}>
+              <Ionicons name="camera" size={24} color="#ec4899" />
+              <View style={styles.analysisHeaderText}>
+                <Text style={styles.analysisTitle}>AI Photo Analysis</Text>
+                <Text style={styles.analysisSubtitle}>
+                  Upload a clear, front-facing photo for analysis
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.uploadButton}
+              onPress={pickImageForAnalysis}
+              disabled={isAnalyzing}
+            >
+              <Ionicons 
+                name="cloud-upload" 
+                size={24} 
+                color={isAnalyzing ? '#9ca3af' : '#ec4899'} 
+              />
+              <Text style={[styles.uploadButtonText, isAnalyzing && styles.uploadButtonTextDisabled]}>
+                {isAnalyzing ? 'Analyzing...' : 'Upload Photo for Analysis'}
+              </Text>
+            </TouchableOpacity>
+
+            {imageUri && (
+              <View style={styles.uploadedImageContainer}>
+                <Image source={{ uri: imageUri }} style={styles.uploadedImage} />
+                {detectedFaceShape && (
+                  <View style={styles.analysisResult}>
+                    <Text style={styles.resultTitle}>
+                      Detected Face Shape: {faceShapes[detectedFaceShape]?.name}
+                    </Text>
+                    <Text style={styles.resultDescription}>
+                      {faceShapes[detectedFaceShape]?.description}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+
+          {/* Manual Selection */}
+          <View style={styles.analysisSection}>
+            <View style={styles.analysisHeader}>
+              <Ionicons name="hand-right" size={24} color="#ec4899" />
+              <View style={styles.analysisHeaderText}>
+                <Text style={styles.analysisTitle}>Self-Assessment</Text>
+                <Text style={styles.analysisSubtitle}>
+                  Choose your face shape from the options below
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.faceShapeGrid}>
+              {Object.entries(faceShapes).map(([key, shape]) => (
+                <TouchableOpacity
+                  key={key}
+                  style={[
+                    styles.faceShapeCard,
+                    selectedFaceShape === key && styles.faceShapeCardSelected
+                  ]}
+                  onPress={() => setSelectedFaceShape(key)}
+                >
+                  <Text style={styles.faceShapeName}>{shape.name}</Text>
+                  <Text style={styles.faceShapeCharacteristics}>
+                    {shape.characteristics.join(', ')}
+                  </Text>
+                  {selectedFaceShape === key && (
+                    <View style={styles.selectedIndicator}>
+                      <Ionicons name="checkmark-circle" size={24} color="#ec4899" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {selectedFaceShape && selectedFaceShape !== 'All' && (
+              <View style={styles.recommendationsSection}>
+                <Text style={styles.recommendationsTitle}>
+                  Recommended Hijab Styles for {faceShapes[selectedFaceShape]?.name}
+                </Text>
+                <Text style={styles.recommendationsDescription}>
+                  {faceShapes[selectedFaceShape]?.description}
+                </Text>
+                <View style={styles.tipsList}>
+                  {faceShapes[selectedFaceShape]?.tips.map((tip, index) => (
+                    <View key={index} style={styles.tip}>
+                      <Ionicons name="bulb" size={16} color="#f59e0b" />
+                      <Text style={styles.tipText}>{tip}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+
+  // Colors Tab Content  
+  function renderColorsTab() {
+    return (
+      <ScrollView style={styles.tabContent}>
+        <View style={styles.tabSection}>
+          <Text style={styles.tabTitle}>Hijab Colors & Palettes</Text>
+          <Text style={styles.tabDescription}>
+            Explore beautiful color options inspired by Malaysian hijabi fashion
+          </Text>
+
+          {Object.entries(hijabColors).map(([categoryKey, category]) => (
+            <View key={categoryKey} style={styles.colorSection}>
+              <Text style={styles.colorSectionTitle}>{category.name}</Text>
+              
+              <View style={styles.colorGrid}>
+                {category.colors.map((color, index) => (
+                  <View key={index} style={styles.colorCard}>
+                    <View 
+                      style={[styles.colorSwatch, { backgroundColor: color.hex }]}
+                    />
+                    <View style={styles.colorInfo}>
+                      <Text style={styles.colorName}>{color.name}</Text>
+                      <View style={styles.occasionTags}>
+                        {color.occasions.map((occasion, idx) => (
+                          <View key={idx} style={styles.occasionTag}>
+                            <Text style={styles.occasionText}>{occasion}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    );
+  }
+
+  // Shopping Tab Content
+  function renderShoppingTab() {
+    return (
+      <ScrollView style={styles.tabContent}>
+        <View style={styles.tabSection}>
+          <Text style={styles.tabTitle}>Shopping & Affiliates</Text>
+          <Text style={styles.tabDescription}>
+            Complete your hijab styling with curated shopping recommendations
+          </Text>
+
+          {/* Hijab Stores */}
+          <View style={styles.shoppingSection}>
+            <Text style={styles.shoppingSectionTitle}>🧕 Hijab Collections</Text>
+            <View style={styles.storeGrid}>
+              {affiliateStores.hijab.map((store, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.storeCard}
+                  onPress={() => openAffiliateLink(store)}
+                >
+                  <View style={styles.storeHeader}>
+                    <Text style={styles.storeLogo}>{store.logo}</Text>
+                    <View style={styles.storeInfo}>
+                      <Text style={styles.storeName}>{store.name}</Text>
+                      <Text style={styles.storeSpeciality}>{store.speciality}</Text>
+                    </View>
+                    <Ionicons name="open" size={20} color="#9ca3af" />
+                  </View>
+                  <Text style={styles.storeDescription}>{store.description}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Shoes & Accessories */}
+          <View style={styles.shoppingSection}>
+            <Text style={styles.shoppingSectionTitle}>👠 Shoes & Accessories</Text>
+            <View style={styles.storeGrid}>
+              {affiliateStores.shoes.map((store, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.storeCard}
+                  onPress={() => openAffiliateLink(store)}
+                >
+                  <View style={styles.storeHeader}>
+                    <Text style={styles.storeLogo}>{store.logo}</Text>
+                    <View style={styles.storeInfo}>
+                      <Text style={styles.storeName}>{store.name}</Text>
+                      <Text style={styles.storeSpeciality}>{store.speciality}</Text>
+                    </View>
+                    <Ionicons name="open" size={20} color="#9ca3af" />
+                  </View>
+                  <Text style={styles.storeDescription}>{store.description}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Complete Outfits */}
+          <View style={styles.shoppingSection}>
+            <Text style={styles.shoppingSectionTitle}>🛍️ Complete Styling</Text>
+            <View style={styles.storeGrid}>
+              {affiliateStores.complete.map((store, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.storeCard}
+                  onPress={() => openAffiliateLink(store)}
+                >
+                  <View style={styles.storeHeader}>
+                    <Text style={styles.storeLogo}>{store.logo}</Text>
+                    <View style={styles.storeInfo}>
+                      <Text style={styles.storeName}>{store.name}</Text>
+                      <Text style={styles.storeSpeciality}>{store.speciality}</Text>
+                    </View>
+                    <Ionicons name="open" size={20} color="#9ca3af" />
+                  </View>
+                  <Text style={styles.storeDescription}>{store.description}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Future Enhancement Notice */}
+          <View style={styles.futureSection}>
+            <Ionicons name="rocket" size={32} color="#ec4899" />
+            <Text style={styles.futureSectionTitle}>Coming Soon!</Text>
+            <Text style={styles.futureSectionDescription}>
+              Personalized affiliate partnerships and exclusive discounts for Visibee users.
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
