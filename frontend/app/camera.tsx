@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Platform,
   KeyboardAvoidingView,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -27,6 +28,7 @@ const clothingSchema = z.object({
   brand: z.string().optional(),
   color: z.string().optional(),
   function: z.string().optional(),
+  category: z.string().optional(),
   purchase_link: z.string().url('Invalid URL').optional().or(z.literal('')),
   tags: z.string().optional(),
 });
@@ -34,6 +36,52 @@ const clothingSchema = z.object({
 type ClothingFormData = z.infer<typeof clothingSchema>;
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
+
+// Predefined options
+const functionOptions = [
+  { value: 'casual', label: 'Casual', icon: 'shirt' },
+  { value: 'formal', label: 'Formal', icon: 'business' },
+  { value: 'athletic', label: 'Athletic', icon: 'fitness' },
+  { value: 'work', label: 'Work', icon: 'briefcase' },
+  { value: 'sleep', label: 'Sleepwear', icon: 'moon' },
+  { value: 'outdoor', label: 'Outdoor', icon: 'leaf' },
+];
+
+const categoryOptions = [
+  'Winter', 'Summer', 'Spring', 'Autumn', 'Costume', 'Wedding', 'Events', 
+  'Party', 'Beach', 'Gym', 'Travel', 'Maternity', 'Undergarments', 'Accessories'
+];
+
+const colorOptions = [
+  'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Gray', 'Grey', 'Brown', 
+  'Pink', 'Purple', 'Orange', 'Navy', 'Burgundy', 'Maroon', 'Teal', 'Turquoise',
+  'Beige', 'Cream', 'Ivory', 'Gold', 'Silver', 'Rose Gold', 'Coral', 'Mint',
+  'Lavender', 'Olive', 'Khaki', 'Denim', 'Multicolor'
+];
+
+const brandOptions = [
+  // High Street Brands
+  'H&M', 'Zara', 'Uniqlo', 'Mango', 'COS', 'Massimo Dutti', 'Bershka', '& Other Stories',
+  'Weekday', 'Monki', 'ARKET', 'Topshop', 'ASOS', 'Urban Outfitters', 'American Eagle',
+  'Abercrombie & Fitch', 'Hollister', 'Gap', 'Banana Republic', 'Old Navy',
+  'Forever 21', 'Charlotte Russe', 'Primark', 'New Look', 'River Island',
+  'Marks & Spencer', 'Next', 'John Lewis', 'Debenhams', 'House of Fraser',
+  
+  // Designer Brands
+  'Chanel', 'Dior', 'Louis Vuitton', 'Hermès', 'Prada', 'Gucci', 'Versace',
+  'Armani', 'Dolce & Gabbana', 'Valentino', 'Givenchy', 'Saint Laurent',
+  'Balenciaga', 'Bottega Veneta', 'Fendi', 'Celine', 'Loewe', 'Burberry',
+  'Alexander McQueen', 'Stella McCartney', 'Marc Jacobs', 'Tom Ford',
+  'Ralph Lauren', 'Calvin Klein', 'Tommy Hilfiger', 'Michael Kors',
+  
+  // Athletic Brands
+  'Nike', 'Adidas', 'Puma', 'Under Armour', 'Reebok', 'New Balance',
+  'Asics', 'Lululemon', 'Athleta', 'Patagonia', 'The North Face',
+  
+  // Contemporary Brands
+  'Cos', 'Acne Studios', 'Ganni', 'Sandro', 'Maje', 'Isabel Marant',
+  'Theory', 'Vince', 'Rag & Bone', 'Equipment', 'Frame', 'Citizens of Humanity'
+];
 
 export default function CameraScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -44,6 +92,16 @@ export default function CameraScreen() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAIOptions, setShowAIOptions] = useState(false);
+  const [itemCount, setItemCount] = useState(0);
+  
+  // Dropdown states
+  const [showColorDropdown, setShowColorDropdown] = useState(false);
+  const [showBrandDropdown, setShowBrandDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [colorSearch, setColorSearch] = useState('');
+  const [brandSearch, setBrandSearch] = useState('');
+  const [categorySearch, setCategorySearch] = useState('');
   
   const cameraRef = useRef<any>(null);
 
@@ -53,6 +111,7 @@ export default function CameraScreen() {
     formState: { errors },
     setValue,
     watch,
+    reset,
   } = useForm<ClothingFormData>({
     resolver: zodResolver(clothingSchema),
     defaultValues: {
@@ -60,30 +119,33 @@ export default function CameraScreen() {
       brand: '',
       color: '',
       function: 'casual',
+      category: '',
       purchase_link: '',
       tags: '',
     },
   });
 
-  const functionOptions = [
-    { value: 'casual', label: 'Casual', icon: 'shirt' },
-    { value: 'formal', label: 'Formal', icon: 'business' },
-    { value: 'athletic', label: 'Athletic', icon: 'fitness' },
-    { value: 'work', label: 'Work', icon: 'briefcase' },
-    { value: 'sleep', label: 'Sleepwear', icon: 'moon' },
-    { value: 'outdoor', label: 'Outdoor', icon: 'leaf' },
-  ];
-
   useEffect(() => {
     requestPermissions();
+    getItemCount();
   }, []);
 
+  const getItemCount = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/clothing`);
+      if (response.ok) {
+        const items = await response.json();
+        setItemCount(items.length);
+      }
+    } catch (error) {
+      console.error('Error getting item count:', error);
+    }
+  };
+
   const requestPermissions = async () => {
-    // Camera permission
     const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
     setCameraPermission(cameraStatus === 'granted');
 
-    // Media library permission
     const { status: mediaStatus } = await MediaLibrary.requestPermissionsAsync();
     setMediaPermission(mediaStatus === 'granted');
 
@@ -109,8 +171,8 @@ export default function CameraScreen() {
       setImageBase64(photo.base64);
       setShowCamera(false);
       
-      // Auto-analyze the image
-      analyzeImage(photo.base64);
+      // Show AI analysis options
+      setShowAIOptions(true);
     } catch (error) {
       console.error('Error taking picture:', error);
       Alert.alert('Error', 'Failed to take picture');
@@ -137,10 +199,8 @@ export default function CameraScreen() {
         setImageUri(asset.uri);
         setImageBase64(asset.base64 || '');
         
-        if (asset.base64) {
-          // Auto-analyze the image
-          analyzeImage(asset.base64);
-        }
+        // Show AI analysis options
+        setShowAIOptions(true);
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -153,6 +213,8 @@ export default function CameraScreen() {
 
     try {
       setIsAnalyzing(true);
+      setShowAIOptions(false);
+      
       const response = await fetch(`${BACKEND_URL}/api/ai/analyze`, {
         method: 'POST',
         headers: {
@@ -169,7 +231,7 @@ export default function CameraScreen() {
       const result = await response.json();
       setAiAnalysis(result.result);
       
-      // Try to auto-fill form based on AI analysis
+      // Auto-fill form based on AI analysis
       autoFillFromAnalysis(result.result);
     } catch (error) {
       console.error('Error analyzing image:', error);
@@ -183,19 +245,101 @@ export default function CameraScreen() {
     const lowerAnalysis = analysis.toLowerCase();
     
     // Try to extract color
-    const colors = ['red', 'blue', 'green', 'yellow', 'black', 'white', 'gray', 'brown', 'pink', 'purple', 'orange'];
-    const detectedColor = colors.find(color => lowerAnalysis.includes(color));
-    if (detectedColor) {
+    const detectedColor = colorOptions.find(color => 
+      lowerAnalysis.includes(color.toLowerCase())
+    );
+    if (detectedColor && !watch('color')) {
       setValue('color', detectedColor);
     }
 
     // Try to extract garment type for name
-    const garmentTypes = ['shirt', 'pants', 'dress', 'skirt', 'jacket', 'sweater', 'jeans', 'shorts', 't-shirt', 'blouse'];
+    const garmentTypes = ['shirt', 'pants', 'dress', 'skirt', 'jacket', 'sweater', 
+                         'jeans', 'shorts', 't-shirt', 'blouse', 'top', 'bottom'];
     const detectedType = garmentTypes.find(type => lowerAnalysis.includes(type));
     if (detectedType && !watch('name')) {
-      setValue('name', detectedType.charAt(0).toUpperCase() + detectedType.slice(1));
+      generateAutoName(detectedType);
     }
   };
+
+  const generateAutoName = (baseType?: string) => {
+    const currentColor = watch('color');
+    const currentBrand = watch('brand');
+    const nextIndex = itemCount + 1;
+    
+    let autoName = '';
+    
+    if (currentColor && baseType) {
+      autoName = `${currentColor} ${baseType}`;
+    } else if (baseType) {
+      autoName = baseType.charAt(0).toUpperCase() + baseType.slice(1);
+    } else if (currentColor) {
+      autoName = `${currentColor} Item`;
+    } else {
+      autoName = `Item ${String(nextIndex).padStart(3, '0')}`;
+    }
+    
+    if (currentBrand && baseType) {
+      autoName = `${currentBrand} ${autoName}`;
+    }
+    
+    setValue('name', autoName);
+  };
+
+  const filteredColors = colorOptions.filter(color =>
+    color.toLowerCase().includes(colorSearch.toLowerCase())
+  );
+
+  const filteredBrands = brandOptions.filter(brand =>
+    brand.toLowerCase().includes(brandSearch.toLowerCase())
+  );
+
+  const filteredCategories = categoryOptions.filter(category =>
+    category.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
+  const renderDropdown = (
+    items: string[],
+    searchValue: string,
+    setSearchValue: (value: string) => void,
+    onSelect: (value: string) => void,
+    placeholder: string
+  ) => (
+    <View style={styles.dropdown}>
+      <TextInput
+        style={styles.dropdownSearch}
+        placeholder={`Search ${placeholder.toLowerCase()}...`}
+        value={searchValue}
+        onChangeText={setSearchValue}
+        placeholderTextColor="#9ca3af"
+      />
+      <ScrollView style={styles.dropdownList} nestedScrollEnabled>
+        {items.map((item) => (
+          <TouchableOpacity
+            key={item}
+            style={styles.dropdownItem}
+            onPress={() => {
+              onSelect(item);
+              setSearchValue('');
+            }}
+          >
+            <Text style={styles.dropdownItemText}>{item}</Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity
+          style={[styles.dropdownItem, styles.customOption]}
+          onPress={() => {
+            onSelect(searchValue);
+            setSearchValue('');
+          }}
+        >
+          <Ionicons name="add" size={16} color="#6366f1" />
+          <Text style={[styles.dropdownItemText, { color: '#6366f1' }]}>
+            Add "{searchValue}"
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
+  );
 
   const onSubmit = async (data: ClothingFormData) => {
     if (!imageBase64) {
@@ -208,11 +352,19 @@ export default function CameraScreen() {
       
       const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()) : [];
       
+      // Auto-generate indexed name if not provided
+      let finalName = data.name;
+      if (!finalName) {
+        const nextIndex = itemCount + 1;
+        finalName = `Item ${String(nextIndex).padStart(3, '0')}`;
+      }
+      
       const clothingData = {
-        name: data.name,
+        name: finalName,
         brand: data.brand || undefined,
         color: data.color || undefined,
         function: data.function || undefined,
+        category: data.category || undefined,
         purchase_link: data.purchase_link || undefined,
         image_base64: imageBase64,
         tags: tagsArray,
@@ -230,7 +382,7 @@ export default function CameraScreen() {
 
       Alert.alert(
         'Success',
-        'Clothing item added to your wardrobe!',
+        `"${finalName}" has been added to your wardrobe!`,
         [
           {
             text: 'Add Another',
@@ -238,12 +390,8 @@ export default function CameraScreen() {
               setImageUri(null);
               setImageBase64(null);
               setAiAnalysis('');
-              setValue('name', '');
-              setValue('brand', '');
-              setValue('color', '');
-              setValue('function', 'casual');
-              setValue('purchase_link', '');
-              setValue('tags', '');
+              reset();
+              getItemCount(); // Update count for next auto-indexing
             },
           },
           {
@@ -259,6 +407,40 @@ export default function CameraScreen() {
       setIsSubmitting(false);
     }
   };
+
+  // AI Options Modal
+  const AIOptionsModal = () => (
+    <Modal
+      visible={showAIOptions}
+      transparent
+      animationType="slide"
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Analyze this image?</Text>
+          <Text style={styles.modalDescription}>
+            AI can automatically detect clothing type, color, and generate a description to help fill out the form.
+          </Text>
+          
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.modalButtonSecondary]}
+              onPress={() => setShowAIOptions(false)}
+            >
+              <Text style={styles.modalButtonTextSecondary}>Skip AI Analysis</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.modalButton, styles.modalButtonPrimary]}
+              onPress={() => analyzeImage(imageBase64 || '')}
+            >
+              <Text style={styles.modalButtonTextPrimary}>Analyze with AI</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   if (showCamera && cameraPermission) {
     return (
@@ -368,16 +550,25 @@ export default function CameraScreen() {
           <View style={styles.formSection}>
             <Text style={styles.sectionTitle}>Details</Text>
             
-            {/* Name */}
+            {/* Name with Auto-Generate Option */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Name *</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Name *</Text>
+                <TouchableOpacity
+                  onPress={() => generateAutoName()}
+                  style={styles.autoButton}
+                >
+                  <Ionicons name="refresh" size={14} color="#6366f1" />
+                  <Text style={styles.autoButtonText}>Auto Generate</Text>
+                </TouchableOpacity>
+              </View>
               <Controller
                 control={control}
                 name="name"
                 render={({ field: { onChange, value } }) => (
                   <TextInput
                     style={[styles.input, errors.name && styles.inputError]}
-                    placeholder="e.g., Blue T-shirt"
+                    placeholder="e.g., Blue T-shirt or leave blank for auto-indexing"
                     value={value}
                     onChangeText={onChange}
                     placeholderTextColor="#9ca3af"
@@ -387,45 +578,82 @@ export default function CameraScreen() {
               {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
             </View>
 
-            {/* Brand */}
+            {/* Brand with Dropdown */}
             <View style={styles.formGroup}>
               <Text style={styles.label}>Brand</Text>
               <Controller
                 control={control}
                 name="brand"
                 render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="e.g., Nike, Zara, H&M"
-                    value={value}
-                    onChangeText={onChange}
-                    placeholderTextColor="#9ca3af"
-                  />
+                  <View>
+                    <TouchableOpacity
+                      style={styles.dropdownButton}
+                      onPress={() => setShowBrandDropdown(!showBrandDropdown)}
+                    >
+                      <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
+                        {value || 'Select or enter brand'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                    
+                    {showBrandDropdown && renderDropdown(
+                      filteredBrands,
+                      brandSearch,
+                      setBrandSearch,
+                      (selectedBrand) => {
+                        onChange(selectedBrand);
+                        setShowBrandDropdown(false);
+                        setBrandSearch('');
+                      },
+                      'Brand'
+                    )}
+                  </View>
                 )}
               />
             </View>
 
-            {/* Color */}
+            {/* Color with Dropdown */}
             <View style={styles.formGroup}>
               <Text style={styles.label}>Color</Text>
               <Controller
                 control={control}
                 name="color"
                 render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="e.g., Blue, Red, Black"
-                    value={value}
-                    onChangeText={onChange}
-                    placeholderTextColor="#9ca3af"
-                  />
+                  <View>
+                    <TouchableOpacity
+                      style={styles.dropdownButton}
+                      onPress={() => setShowColorDropdown(!showColorDropdown)}
+                    >
+                      <View style={styles.colorPreview}>
+                        {value && (
+                          <View style={[styles.colorDot, { backgroundColor: value.toLowerCase() }]} />
+                        )}
+                        <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
+                          {value || 'Select or enter color'}
+                        </Text>
+                      </View>
+                      <Ionicons name="chevron-down" size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                    
+                    {showColorDropdown && renderDropdown(
+                      filteredColors,
+                      colorSearch,
+                      setColorSearch,
+                      (selectedColor) => {
+                        onChange(selectedColor);
+                        setShowColorDropdown(false);
+                        setColorSearch('');
+                      },
+                      'Color'
+                    )}
+                  </View>
                 )}
               />
             </View>
 
             {/* Function */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Category</Text>
+              <Text style={styles.label}>Function</Text>
               <Controller
                 control={control}
                 name="function"
@@ -461,6 +689,40 @@ export default function CameraScreen() {
                       </TouchableOpacity>
                     ))}
                   </ScrollView>
+                )}
+              />
+            </View>
+
+            {/* Category with Dropdown */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Category</Text>
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: { onChange, value } }) => (
+                  <View>
+                    <TouchableOpacity
+                      style={styles.dropdownButton}
+                      onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                    >
+                      <Text style={[styles.dropdownButtonText, value && styles.dropdownButtonTextSelected]}>
+                        {value || 'Select or enter category'}
+                      </Text>
+                      <Ionicons name="chevron-down" size={20} color="#6b7280" />
+                    </TouchableOpacity>
+                    
+                    {showCategoryDropdown && renderDropdown(
+                      filteredCategories,
+                      categorySearch,
+                      setCategorySearch,
+                      (selectedCategory) => {
+                        onChange(selectedCategory);
+                        setShowCategoryDropdown(false);
+                        setCategorySearch('');
+                      },
+                      'Category'
+                    )}
+                  </View>
                 )}
               />
             </View>
@@ -521,6 +783,8 @@ export default function CameraScreen() {
             )}
           </TouchableOpacity>
         </ScrollView>
+        
+        <AIOptionsModal />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -689,11 +953,30 @@ const styles = StyleSheet.create({
   formGroup: {
     marginBottom: 20,
   },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   label: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 8,
+  },
+  autoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: '#f0f4ff',
+    borderRadius: 6,
+  },
+  autoButtonText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6366f1',
   },
   input: {
     borderWidth: 1,
@@ -712,6 +995,74 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#ef4444',
     marginTop: 4,
+  },
+  dropdownButton: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fafafa',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropdownButtonText: {
+    fontSize: 16,
+    color: '#9ca3af',
+  },
+  dropdownButtonTextSelected: {
+    color: '#1f2937',
+  },
+  colorPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  colorDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    backgroundColor: 'white',
+    marginTop: 4,
+    maxHeight: 200,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  dropdownSearch: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    fontSize: 14,
+  },
+  dropdownList: {
+    maxHeight: 150,
+  },
+  dropdownItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  dropdownItemText: {
+    fontSize: 14,
+    color: '#374151',
+  },
+  customOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   functionSelector: {
     marginTop: 8,
@@ -753,6 +1104,63 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: 'white',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalButtonPrimary: {
+    backgroundColor: '#6366f1',
+  },
+  modalButtonSecondary: {
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  modalButtonTextPrimary: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalButtonTextSecondary: {
+    color: '#6b7280',
+    fontSize: 14,
     fontWeight: '600',
   },
 });
