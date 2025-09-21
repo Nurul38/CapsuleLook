@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Platform,
   Dimensions,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -44,17 +45,27 @@ export default function WardrobeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [showFunctionModal, setShowFunctionModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<ClothingItem | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const functionOptions = [
+    { key: 'casual', label: 'Casual', icon: 'shirt', description: 'Everyday comfortable wear' },
+    { key: 'formal', label: 'Formal', icon: 'business', description: 'Professional & dressy' },
+    { key: 'athletic', label: 'Athletic', icon: 'fitness', description: 'Sports & workout gear' },
+    { key: 'work', label: 'Work', icon: 'briefcase', description: 'Office & professional' },
+    { key: 'sleep', label: 'Sleep', icon: 'moon', description: 'Pajamas & nightwear' },
+    { key: 'outdoor', label: 'Outdoor', icon: 'leaf', description: 'Adventure & nature' },
+    { key: 'party', label: 'Party', icon: 'musical-notes', description: 'Celebrations & events' },
+    { key: 'vacation', label: 'Vacation', icon: 'airplane', description: 'Travel & leisure' },
+  ];
 
   const filterTypes = [
     { key: 'all', label: 'All', icon: 'grid' },
-    { key: 'casual', label: 'Casual', icon: 'shirt' },
-    { key: 'formal', label: 'Formal', icon: 'business' },
-    { key: 'athletic', label: 'Athletic', icon: 'fitness' },
-    { key: 'work', label: 'Work', icon: 'briefcase' },
-    { key: 'sleep', label: 'Sleep', icon: 'moon' },
-    { key: 'outdoor', label: 'Outdoor', icon: 'leaf' },
-    { key: 'party', label: 'Party', icon: 'musical-notes' },
-    { key: 'vacation', label: 'Vacation', icon: 'airplane' },
+    ...functionOptions,
     // Categories
     { key: 'winter', label: 'Winter', icon: 'snow' },
     { key: 'summer', label: 'Summer', icon: 'sunny' },
@@ -88,6 +99,84 @@ export default function WardrobeScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const updateItemFunction = async (itemId: string, newFunction: string) => {
+    try {
+      setIsUpdating(true);
+      const response = await fetch(`${BACKEND_URL}/api/clothing/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          function: newFunction,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update item');
+
+      // Update local state
+      setClothingItems(prev => 
+        prev.map(item => 
+          item.id === itemId 
+            ? { ...item, function: newFunction }
+            : item
+        )
+      );
+
+      return true;
+    } catch (error) {
+      console.error('Error updating item:', error);
+      Alert.alert('Error', 'Failed to update item function');
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const moveSelectedItems = async (newFunction: string) => {
+    try {
+      setIsUpdating(true);
+      const selectedItemsList = Array.from(selectedItems);
+      
+      // Update all selected items
+      const updatePromises = selectedItemsList.map(itemId => 
+        updateItemFunction(itemId, newFunction)
+      );
+      
+      const results = await Promise.all(updatePromises);
+      const successCount = results.filter(Boolean).length;
+      
+      if (successCount === selectedItemsList.length) {
+        Alert.alert(
+          'Success', 
+          `Moved ${successCount} item${successCount !== 1 ? 's' : ''} to ${functionOptions.find(f => f.key === newFunction)?.label || newFunction}`
+        );
+      } else {
+        Alert.alert('Partial Success', `Moved ${successCount} of ${selectedItemsList.length} items`);
+      }
+      
+      setSelectedItems(new Set());
+      setIsSelecting(false);
+      setShowMoveModal(false);
+      
+    } catch (error) {
+      console.error('Error moving items:', error);
+      Alert.alert('Error', 'Failed to move items');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const toggleItemSelection = (itemId: string) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(itemId)) {
+      newSelected.delete(itemId);
+    } else {
+      newSelected.add(itemId);
+    }
+    setSelectedItems(newSelected);
   };
 
   const deleteItem = async (itemId: string) => {
@@ -140,9 +229,37 @@ export default function WardrobeScreen() {
   const renderClothingItemList = (item: ClothingItem) => (
     <TouchableOpacity 
       key={item.id} 
-      style={styles.itemCard}
-      onPress={() => router.push(`/item-details/${item.id}` as any)}
+      style={[
+        styles.itemCard,
+        selectedItems.has(item.id) && styles.itemCardSelected
+      ]}
+      onPress={() => {
+        if (isSelecting) {
+          toggleItemSelection(item.id);
+        } else {
+          router.push(`/item-details/${item.id}` as any);
+        }
+      }}
+      onLongPress={() => {
+        if (!isSelecting) {
+          setIsSelecting(true);
+          setSelectedItems(new Set([item.id]));
+        }
+      }}
     >
+      {isSelecting && (
+        <View style={styles.selectionIndicator}>
+          <View style={[
+            styles.checkbox,
+            selectedItems.has(item.id) && styles.checkboxSelected
+          ]}>
+            {selectedItems.has(item.id) && (
+              <Ionicons name="checkmark" size={16} color="white" />
+            )}
+          </View>
+        </View>
+      )}
+      
       <View style={styles.itemImageContainer}>
         {item.image_base64 ? (
           <Image
@@ -170,10 +287,17 @@ export default function WardrobeScreen() {
           )}
           
           {item.function && (
-            <View style={styles.metaTag}>
-              <Ionicons name="bookmark" size={12} color="#6b7280" />
-              <Text style={styles.metaText}>{item.function}</Text>
-            </View>
+            <TouchableOpacity 
+              style={styles.functionTag}
+              onPress={() => {
+                setEditingItem(item);
+                setShowFunctionModal(true);
+              }}
+            >
+              <Ionicons name="bookmark" size={12} color="#6366f1" />
+              <Text style={[styles.metaText, { color: '#6366f1' }]}>{item.function}</Text>
+              <Ionicons name="create" size={10} color="#6366f1" />
+            </TouchableOpacity>
           )}
           
           {item.category && (
@@ -191,21 +315,51 @@ export default function WardrobeScreen() {
         )}
       </View>
       
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => deleteItem(item.id)}
-      >
-        <Ionicons name="trash" size={20} color="#ef4444" />
-      </TouchableOpacity>
+      {!isSelecting && (
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => deleteItem(item.id)}
+        >
+          <Ionicons name="trash" size={20} color="#ef4444" />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 
   const renderClothingItemGrid = (item: ClothingItem) => (
     <TouchableOpacity 
       key={item.id} 
-      style={styles.gridItem}
-      onPress={() => router.push(`/item-details/${item.id}` as any)}
+      style={[
+        styles.gridItem,
+        selectedItems.has(item.id) && styles.gridItemSelected
+      ]}
+      onPress={() => {
+        if (isSelecting) {
+          toggleItemSelection(item.id);
+        } else {
+          router.push(`/item-details/${item.id}` as any);
+        }
+      }}
+      onLongPress={() => {
+        if (!isSelecting) {
+          setIsSelecting(true);
+          setSelectedItems(new Set([item.id]));
+        }
+      }}
     >
+      {isSelecting && (
+        <View style={styles.gridSelectionIndicator}>
+          <View style={[
+            styles.checkbox,
+            selectedItems.has(item.id) && styles.checkboxSelected
+          ]}>
+            {selectedItems.has(item.id) && (
+              <Ionicons name="checkmark" size={12} color="white" />
+            )}
+          </View>
+        </View>
+      )}
+      
       {item.image_base64 ? (
         <Image
           source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
@@ -223,14 +377,28 @@ export default function WardrobeScreen() {
         {item.brand && (
           <Text style={styles.gridItemBrand} numberOfLines={1}>{item.brand}</Text>
         )}
+        {item.function && (
+          <TouchableOpacity 
+            style={styles.gridFunctionTag}
+            onPress={() => {
+              setEditingItem(item);
+              setShowFunctionModal(true);
+            }}
+          >
+            <Text style={styles.gridFunctionText}>{item.function}</Text>
+            <Ionicons name="create" size={8} color="#6366f1" />
+          </TouchableOpacity>
+        )}
       </View>
       
-      <TouchableOpacity
-        style={styles.gridDeleteButton}
-        onPress={() => deleteItem(item.id)}
-      >
-        <Ionicons name="close" size={14} color="#ef4444" />
-      </TouchableOpacity>
+      {!isSelecting && (
+        <TouchableOpacity
+          style={styles.gridDeleteButton}
+          onPress={() => deleteItem(item.id)}
+        >
+          <Ionicons name="close" size={14} color="#ef4444" />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 
@@ -267,6 +435,130 @@ export default function WardrobeScreen() {
       </ScrollView>
     );
   };
+
+  // Function Change Modal
+  const renderFunctionModal = () => (
+    <Modal
+      visible={showFunctionModal}
+      transparent
+      animationType="slide"
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Change Function</Text>
+          <Text style={styles.modalDescription}>
+            Move "{editingItem?.name}" to a different function folder
+          </Text>
+          
+          <ScrollView style={styles.functionList} showsVerticalScrollIndicator={false}>
+            {functionOptions.map((func) => (
+              <TouchableOpacity
+                key={func.key}
+                style={[
+                  styles.functionOption,
+                  editingItem?.function === func.key && styles.functionOptionCurrent
+                ]}
+                onPress={async () => {
+                  if (editingItem && editingItem.function !== func.key) {
+                    const success = await updateItemFunction(editingItem.id, func.key);
+                    if (success) {
+                      setShowFunctionModal(false);
+                      setEditingItem(null);
+                    }
+                  }
+                }}
+              >
+                <View style={styles.functionOptionContent}>
+                  <Ionicons 
+                    name={func.icon as any} 
+                    size={24} 
+                    color={editingItem?.function === func.key ? '#10b981' : '#6366f1'} 
+                  />
+                  <View style={styles.functionOptionText}>
+                    <Text style={[
+                      styles.functionOptionLabel,
+                      editingItem?.function === func.key && styles.functionOptionLabelCurrent
+                    ]}>
+                      {func.label}
+                    </Text>
+                    <Text style={styles.functionOptionDescription}>
+                      {func.description}
+                    </Text>
+                  </View>
+                  {editingItem?.function === func.key && (
+                    <Ionicons name="checkmark-circle" size={24} color="#10b981" />
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={styles.modalButtonSecondary}
+              onPress={() => {
+                setShowFunctionModal(false);
+                setEditingItem(null);
+              }}
+            >
+              <Text style={styles.modalButtonTextSecondary}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  // Bulk Move Modal
+  const renderMoveModal = () => (
+    <Modal
+      visible={showMoveModal}
+      transparent
+      animationType="slide"
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Move Items</Text>
+          <Text style={styles.modalDescription}>
+            Move {selectedItems.size} selected item{selectedItems.size !== 1 ? 's' : ''} to:
+          </Text>
+          
+          <ScrollView style={styles.functionList} showsVerticalScrollIndicator={false}>
+            {functionOptions.map((func) => (
+              <TouchableOpacity
+                key={func.key}
+                style={styles.functionOption}
+                onPress={() => moveSelectedItems(func.key)}
+                disabled={isUpdating}
+              >
+                <View style={styles.functionOptionContent}>
+                  <Ionicons name={func.icon as any} size={24} color="#6366f1" />
+                  <View style={styles.functionOptionText}>
+                    <Text style={styles.functionOptionLabel}>{func.label}</Text>
+                    <Text style={styles.functionOptionDescription}>{func.description}</Text>
+                  </View>
+                  <Ionicons name="arrow-forward" size={20} color="#9ca3af" />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={styles.modalButtonSecondary}
+              onPress={() => {
+                setShowMoveModal(false);
+                setSelectedItems(new Set());
+                setIsSelecting(false);
+              }}
+            >
+              <Text style={styles.modalButtonTextSecondary}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
