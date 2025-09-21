@@ -141,12 +141,12 @@ export default function AuthScreen() {
             </View>
             
             <Text style={styles.welcomeText}>
-              {isLogin ? 'Welcome back!' : 'Join the Visibee community!'}
+              {isLogin ? 'Welcome back to your space! 💜' : 'Ready to organize your style? ✨'}
             </Text>
             <Text style={styles.description}>
               {isLogin 
-                ? 'Sign in to access your wardrobe and style insights'
-                : 'Create your account to start organizing your wardrobe with AI'
+                ? 'Sign in to access your personal wardrobe and get gentle style guidance tailored just for you'
+                : 'Join thousands who\'ve found peace in organized, mindful fashion choices'
               }
             </Text>
           </View>
