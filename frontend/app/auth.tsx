@@ -246,7 +246,7 @@ export default function AuthScreen() {
                     control={signupForm.control}
                     name="username"
                     defaultValue=""
-                    render={({ field: { onChange, value } }) => (
+                    render={({ field: { onChange, onBlur, value } }) => (
                       <View style={styles.inputContainer}>
                         <Ionicons name="person" size={20} color="#9ca3af" style={styles.inputIcon} />
                         <TextInput
@@ -254,6 +254,7 @@ export default function AuthScreen() {
                           placeholder="Choose a username"
                           value={value}
                           onChangeText={onChange}
+                          onBlur={onBlur}
                           autoCapitalize="none"
                           placeholderTextColor="#9ca3af"
                         />
