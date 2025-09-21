@@ -44,6 +44,16 @@ export default function WardrobeScreen() {
     { key: 'casual', label: 'Casual', icon: 'shirt' },
     { key: 'formal', label: 'Formal', icon: 'business' },
     { key: 'athletic', label: 'Athletic', icon: 'fitness' },
+    { key: 'winter', label: 'Winter', icon: 'snow' },
+    { key: 'summer', label: 'Summer', icon: 'sunny' },
+    { key: 'costume', label: 'Costume', icon: 'star' },
+    { key: 'wedding', label: 'Wedding', icon: 'heart' },
+    { key: 'events', label: 'Events', icon: 'calendar' },
+  ];
+
+  const categoryTypes = [
+    'Winter', 'Summer', 'Spring', 'Autumn', 'Costume', 'Wedding', 'Events', 
+    'Party', 'Beach', 'Gym', 'Travel', 'Maternity', 'Undergarments', 'Accessories'
   ];
 
   useEffect(() => {
