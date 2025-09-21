@@ -122,33 +122,19 @@ export default function AuthScreen() {
             <View style={[styles.circle, styles.circle1]} />
             <View style={[styles.circle, styles.circle2]} />
             <View style={[styles.circle, styles.circle3]} />
-            <View style={[styles.dressIcon, styles.dressPosition]} />
+            <View style={[styles.wardrobeIllustration]} />
           </View>
 
-          {/* Header */}
-          <View style={styles.header}>
+          {/* Hero Section */}
+          <View style={styles.heroSection}>
             <View style={styles.logoContainer}>
               <View style={styles.logo}>
-                <Ionicons name="shirt" size={28} color="white" />
+                <Ionicons name="shirt" size={28} color="#4B0082" />
               </View>
-              <Text style={styles.title}>Visibee</Text>
-              <Text style={styles.subtitle}>Your Friendly E-Wardrobe</Text>
-              <View style={styles.sparkles}>
-                <Text style={styles.sparkleText}>✨</Text>
-                <Text style={styles.sparkleText}>🌸</Text>
-                <Text style={styles.sparkleText}>✨</Text>
-              </View>
+              <Text style={styles.heroTitle}>Unlock Your Wardrobe's Full Potential</Text>
+              <Text style={styles.heroSubtitle}>Visibee: Effortless Clothing Inventory & Style Inspiration</Text>
+              <Text style={styles.tagline}>Your Style, Perfectly Organized.</Text>
             </View>
-            
-            <Text style={styles.welcomeText}>
-              {isLogin ? 'Welcome back to your space! 💜' : 'Ready to organize your style? ✨'}
-            </Text>
-            <Text style={styles.description}>
-              {isLogin 
-                ? 'Sign in to access your personal wardrobe and get gentle style guidance tailored just for you'
-                : 'Join thousands who\'ve found peace in organized, mindful fashion choices'
-              }
-            </Text>
           </View>
 
           {/* Form */}
